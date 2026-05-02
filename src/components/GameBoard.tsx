@@ -8,35 +8,44 @@ interface GameBoardProps {
 }
 
 const GameBoard: React.FC<GameBoardProps> = ({ boardSize, snake, food, gameOver }) => {
-  const cellSize = 100 / boardSize;
+  const cellPct = 100 / boardSize;
+  const gap = 0.5; // percentage gap between pieces
 
-  const renderCell = (x: number, y: number) => {
-    const isSnakeHead = snake[0]?.x === x && snake[0]?.y === y;
-    const isSnakeBody = snake.slice(1).some((segment) => segment.x === x && segment.y === y);
-    const isFood = food.x === x && food.y === y;
-
-    let className = 'cell';
-    if (isSnakeHead) className += ' snake-head';
-    else if (isSnakeBody) className += ' snake-body';
-    else if (isFood) className += ' food';
-
-    return <div key={`${x}-${y}`} className={className} style={{ width: `${cellSize}%`, height: `${cellSize}%` }} />;
-  };
-
-  const grid = [];
-  for (let y = 0; y < boardSize; y++) {
-    for (let x = 0; x < boardSize; x++) {
-      grid.push(renderCell(x, y));
-    }
-  }
+  const pieceStyle = (x: number, y: number): React.CSSProperties => ({
+    position: 'absolute',
+    left: `${x * cellPct + gap / 2}%`,
+    top: `${y * cellPct + gap / 2}%`,
+    width: `${cellPct - gap}%`,
+    height: `${cellPct - gap}%`,
+  });
 
   return (
     <div className="game-board">
-      {gameOver && <div className="game-over-overlay">Game Over!<br />Press SPACE to restart</div>}
-      <div className="grid">{grid}</div>
+      <div className="grid-overlay" />
+
+      {/* Food */}
+      <div className="food" style={pieceStyle(food.x, food.y)} />
+
+      {/* Body segments (rendered before head so head sits on top) */}
+      {snake.slice(1).map((segment, i) => (
+        <div key={`seg-${i}`} className="snake-body" style={pieceStyle(segment.x, segment.y)} />
+      ))}
+
+      {/* Head */}
+      {snake[0] && (
+        <div className="snake-head" style={pieceStyle(snake[0].x, snake[0].y)}>
+          <span className="eye eye-left" />
+          <span className="eye eye-right" />
+        </div>
+      )}
+
+      {gameOver && (
+        <div className="game-over-overlay">
+          Game Over!<br />Press SPACE to restart
+        </div>
+      )}
     </div>
   );
 };
-
 
 export default GameBoard;
