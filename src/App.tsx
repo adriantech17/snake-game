@@ -1,24 +1,41 @@
 import React from 'react';
-import logo from './logo.svg';
+import { useSnakeGame } from './hooks/useSnakeGame';
+import GameBoard from './components/GameBoard';
+import ScoreBoard from './components/ScoreBoard';
+import Controls from './components/Controls';
 import './App.css';
 
 function App() {
+  const { gameState, startGame, pauseGame, resumeGame, changeDirection, BOARD_SIZE } = useSnakeGame();
+
+  const handlePauseResume = () => {
+    if (gameState.isRunning) {
+      pauseGame();
+    } else {
+      resumeGame();
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="game-container">
+      <ScoreBoard 
+        score={gameState.score} 
+        isRunning={gameState.isRunning} 
+        gameOver={gameState.gameOver} 
+      />
+      <GameBoard 
+        boardSize={BOARD_SIZE} 
+        snake={gameState.snake} 
+        food={gameState.food} 
+        gameOver={gameState.gameOver} 
+      />
+      <Controls 
+        onDirectionChange={changeDirection} 
+        onStart={startGame} 
+        onPauseResume={handlePauseResume} 
+        isRunning={gameState.isRunning} 
+        gameOver={gameState.gameOver} 
+      />
     </div>
   );
 }
