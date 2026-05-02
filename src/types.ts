@@ -1,15 +1,5 @@
-export type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
-
-export interface Position {
-  x: number;
-  y: number;
-}
-
-export interface GameState {
-  snake: Position[];
-  food: Position;
-  direction: Direction;
-  gameOver: boolean;
-  score: number;
-  isRunning: boolean;
-}
+/**
+ * Barrel re-export for backwards compatibility.
+ * New code should import directly from './engine/gameEngine'.
+ */
+export type { Direction, Position, GameState } from './engine/gameEngine';
