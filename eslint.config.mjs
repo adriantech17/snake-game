@@ -17,7 +17,11 @@ export default tseslint.config(
       globals: {
         ...globals.browser,
         ...globals.es2021,
-        ...globals.jest,
+        describe: 'readonly',
+        expect: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        vi: 'readonly',
       },
       parserOptions: {
         ecmaFeatures: {
