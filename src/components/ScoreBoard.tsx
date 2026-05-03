@@ -6,7 +6,11 @@ interface ScoreBoardProps {
   gameOver: boolean;
 }
 
-const ScoreBoard: React.FC<ScoreBoardProps> = ({ score, isRunning, gameOver }) => {
+const ScoreBoard: React.FC<ScoreBoardProps> = ({
+  score,
+  isRunning,
+  gameOver,
+}) => {
   return (
     <div className="score-board">
       <h2>Snake Game</h2>

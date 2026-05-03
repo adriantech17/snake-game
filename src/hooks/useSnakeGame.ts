@@ -14,19 +14,19 @@ function getRandomPosition(snake: Position[]): Position {
   const isSnakeOccupied = (pos: Position, snake: Position[]): boolean => {
     return snake.some((segment) => segment.x === pos.x && segment.y === pos.y);
   };
-  
+
   let position: Position = {
     x: Math.floor(Math.random() * BOARD_SIZE),
     y: Math.floor(Math.random() * BOARD_SIZE),
   };
-  
+
   while (isSnakeOccupied(position, snake)) {
     position = {
       x: Math.floor(Math.random() * BOARD_SIZE),
       y: Math.floor(Math.random() * BOARD_SIZE),
     };
   }
-  
+
   return position;
 }
 
@@ -117,7 +117,11 @@ export function useSnakeGame() {
       }
 
       // Check self collision
-      if (prev.snake.some((segment) => segment.x === newHead.x && segment.y === newHead.y)) {
+      if (
+        prev.snake.some(
+          (segment) => segment.x === newHead.x && segment.y === newHead.y,
+        )
+      ) {
         return { ...prev, gameOver: true, isRunning: false };
       }
 
@@ -204,7 +208,14 @@ export function useSnakeGame() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [changeDirection, startGame, pauseGame, resumeGame, gameState.gameOver, gameState.isRunning]);
+  }, [
+    changeDirection,
+    startGame,
+    pauseGame,
+    resumeGame,
+    gameState.gameOver,
+    gameState.isRunning,
+  ]);
 
   return {
     gameState,

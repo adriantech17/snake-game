@@ -12,7 +12,9 @@
   height: min(92vmin, 600px);
   background: #0d1214;
   border: 3px solid #65cf7b;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(170, 255, 200, 0.18);
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(170, 255, 200, 0.18);
   border-radius: 14px;
   overflow: hidden;
   margin: 20px 0;
@@ -32,14 +34,18 @@
   position: absolute;
   border-radius: 38%;
   background: linear-gradient(145deg, #a8ffb4 0%, #2acb45 45%, #16892c 100%);
-  box-shadow: 0 0 12px rgba(70, 255, 119, 0.55), inset 0 -3px 6px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 0 12px rgba(70, 255, 119, 0.55),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.35);
 }
 
 .snake-body {
   position: absolute;
   border-radius: 38%;
   background: linear-gradient(145deg, #55e36d 0%, #1da83a 50%, #11742a 100%);
-  box-shadow: 0 0 8px rgba(62, 229, 102, 0.3), inset 0 -2px 5px rgba(0, 0, 0, 0.28);
+  box-shadow:
+    0 0 8px rgba(62, 229, 102, 0.3),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.28);
 }
 
 /* Eyes are sized proportionally to the head using % */
@@ -73,9 +79,16 @@
 
 .food {
   position: absolute;
-  background: radial-gradient(circle at 35% 28%, #ffe5e5 0%, #ff6b6b 40%, #cc0f0f 100%);
+  background: radial-gradient(
+    circle at 35% 28%,
+    #ffe5e5 0%,
+    #ff6b6b 40%,
+    #cc0f0f 100%
+  );
   border-radius: 50%;
-  box-shadow: 0 0 18px rgba(255, 45, 45, 0.65), inset 0 -3px 4px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 0 18px rgba(255, 45, 45, 0.65),
+    inset 0 -3px 4px rgba(0, 0, 0, 0.35);
   animation: pulse-food 650ms ease-in-out infinite alternate;
 }
 

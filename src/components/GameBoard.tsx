@@ -7,7 +7,12 @@ interface GameBoardProps {
   gameOver: boolean;
 }
 
-const GameBoard: React.FC<GameBoardProps> = ({ boardSize, snake, food, gameOver }) => {
+const GameBoard: React.FC<GameBoardProps> = ({
+  boardSize,
+  snake,
+  food,
+  gameOver,
+}) => {
   const cellPct = 100 / boardSize;
   const gap = 0.5; // percentage gap between pieces
 
@@ -28,7 +33,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ boardSize, snake, food, gameOver 
 
       {/* Body segments (rendered before head so head sits on top) */}
       {snake.slice(1).map((segment, i) => (
-        <div key={`seg-${i}`} className="snake-body" style={pieceStyle(segment.x, segment.y)} />
+        <div
+          key={`seg-${i}`}
+          className="snake-body"
+          style={pieceStyle(segment.x, segment.y)}
+        />
       ))}
 
       {/* Head */}
@@ -41,7 +50,9 @@ const GameBoard: React.FC<GameBoardProps> = ({ boardSize, snake, food, gameOver 
 
       {gameOver && (
         <div className="game-over-overlay">
-          Game Over!<br />Press SPACE to restart
+          Game Over!
+          <br />
+          Press SPACE to restart
         </div>
       )}
     </div>

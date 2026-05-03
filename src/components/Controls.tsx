@@ -18,19 +18,38 @@ const Controls: React.FC<ControlsProps> = ({
 }) => {
   return (
     <div className="controls">
-      <button onClick={() => onDirectionChange('UP')} className="control-btn">▲</button>
+      <button onClick={() => onDirectionChange('UP')} className="control-btn">
+        ▲
+      </button>
       <div className="control-row">
-        <button onClick={() => onDirectionChange('LEFT')} className="control-btn">◀</button>
-        <button onClick={() => onDirectionChange('RIGHT')} className="control-btn">▶</button>
+        <button
+          onClick={() => onDirectionChange('LEFT')}
+          className="control-btn"
+        >
+          ◀
+        </button>
+        <button
+          onClick={() => onDirectionChange('RIGHT')}
+          className="control-btn"
+        >
+          ▶
+        </button>
       </div>
-      <button onClick={() => onDirectionChange('DOWN')} className="control-btn">▼</button>
+      <button onClick={() => onDirectionChange('DOWN')} className="control-btn">
+        ▼
+      </button>
       <div className="control-actions">
         {gameOver || !isRunning ? (
-          <button onClick={gameOver ? onStart : onPauseResume} className="action-btn">
+          <button
+            onClick={gameOver ? onStart : onPauseResume}
+            className="action-btn"
+          >
             {gameOver ? 'Restart' : 'Start'}
           </button>
         ) : (
-          <button onClick={onPauseResume} className="action-btn">Pause</button>
+          <button onClick={onPauseResume} className="action-btn">
+            Pause
+          </button>
         )}
       </div>
     </div>
