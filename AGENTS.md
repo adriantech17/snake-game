@@ -39,8 +39,9 @@ Run `npm run lint` and `npm run format:check` before submitting changes.
 Vitest is the test runner with Testing Library and jsdom for React tests. Keep tests
 near the code they cover using `*.test.ts`, `*.test.tsx`, or `*.test-d.ts`. Cover
 gameplay changes in `useSnakeGame` with behavior-focused cases, and cover UI changes
-through rendered output and user interactions. Run `npm test` routinely and
-`npm run coverage` when changing core game logic.
+through rendered output and accessible queries. Add user-event tooling when interaction
+tests are introduced. Run `npm test` routinely and `npm run coverage` when changing
+core game logic.
 
 ## Commit & Pull Request Guidelines
 

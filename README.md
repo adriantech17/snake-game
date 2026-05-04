@@ -6,12 +6,16 @@ React and TypeScript application built with Vite.
 
 In the project directory, you can run:
 
-### `npm start`
+### `npm run dev`
 
 Runs the app in development mode.\
 Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
 
-The page will reload if you make edits.\
+The page will reload if you make edits.
+
+### `npm start`
+
+Runs the same Vite development server as `npm run dev`.
 
 ### `npm test`
 
@@ -20,6 +24,30 @@ Runs the test suite once with Vitest.
 ### `npm run test:watch`
 
 Launches the Vitest test runner in watch mode.
+
+### `npm run test:type`
+
+Runs type-level Vitest checks.
+
+### `npm run coverage`
+
+Runs the test suite with V8 coverage reporting.
+
+### `npm run lint`
+
+Checks the project with ESLint.
+
+### `npm run lint:fix`
+
+Applies safe ESLint fixes.
+
+### `npm run format:check`
+
+Checks formatting with Prettier.
+
+### `npm run format`
+
+Formats files with Prettier.
 
 ### `npm run build`
 
