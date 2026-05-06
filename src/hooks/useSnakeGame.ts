@@ -1,169 +1,48 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { Position, Direction, GameState } from '../types';
-
-const BOARD_SIZE = 20;
-const INITIAL_SNAKE: Position[] = [
-  { x: 10, y: 10 },
-  { x: 10, y: 11 },
-  { x: 10, y: 12 },
-];
-const INITIAL_DIRECTION: Direction = 'UP';
-const GAME_SPEED = 150;
-
-function getRandomPosition(snake: Position[]): Position {
-  const isSnakeOccupied = (pos: Position, snake: Position[]): boolean => {
-    return snake.some((segment) => segment.x === pos.x && segment.y === pos.y);
-  };
-
-  let position: Position = {
-    x: Math.floor(Math.random() * BOARD_SIZE),
-    y: Math.floor(Math.random() * BOARD_SIZE),
-  };
-
-  while (isSnakeOccupied(position, snake)) {
-    position = {
-      x: Math.floor(Math.random() * BOARD_SIZE),
-      y: Math.floor(Math.random() * BOARD_SIZE),
-    };
-  }
-
-  return position;
-}
+import { useState, useEffect } from 'react';
+import { BOARD_SIZE, GAME_SPEED } from '../game/constants';
+import {
+  createInitialGameState,
+  pauseGame as pauseGameState,
+  queueDirection,
+  resumeGame as resumeGameState,
+  startGame as startGameState,
+  tick,
+} from '../game/engine';
+import { Direction } from '../types';
 
 export function useSnakeGame() {
-  const [gameState, setGameState] = useState<GameState>({
-    snake: INITIAL_SNAKE,
-    food: getRandomPosition(INITIAL_SNAKE),
-    direction: INITIAL_DIRECTION,
-    gameOver: false,
-    score: 0,
-    isRunning: false,
-  });
+  const [gameState, setGameState] = useState(() => createInitialGameState());
 
-  const gameLoopRef = useRef<number | null>(null);
-  const directionRef = useRef<Direction>(INITIAL_DIRECTION);
-  const lastMoveTimeRef = useRef<number>(0);
+  function startGame() {
+    setGameState(startGameState());
+  }
 
-  const startGame = useCallback(() => {
-    setGameState({
-      snake: INITIAL_SNAKE,
-      food: getRandomPosition(INITIAL_SNAKE),
-      direction: INITIAL_DIRECTION,
-      gameOver: false,
-      score: 0,
-      isRunning: true,
-    });
-    directionRef.current = INITIAL_DIRECTION;
-    lastMoveTimeRef.current = Date.now();
-  }, []);
+  function pauseGame() {
+    setGameState(pauseGameState);
+  }
 
-  const pauseGame = useCallback(() => {
-    setGameState((prev) => ({ ...prev, isRunning: false }));
-  }, []);
+  function resumeGame() {
+    setGameState(resumeGameState);
+  }
 
-  const resumeGame = useCallback(() => {
-    setGameState((prev) => ({ ...prev, isRunning: true }));
-    lastMoveTimeRef.current = Date.now();
-  }, []);
-
-  const changeDirection = useCallback((newDirection: Direction) => {
-    const opposites: Record<Direction, Direction> = {
-      UP: 'DOWN',
-      DOWN: 'UP',
-      LEFT: 'RIGHT',
-      RIGHT: 'LEFT',
-    };
-
-    setGameState((prev) => {
-      if (opposites[newDirection] === prev.direction) {
-        return prev;
-      }
-      directionRef.current = newDirection;
-      return { ...prev, direction: newDirection };
-    });
-  }, []);
-
-  const moveSnake = useCallback(() => {
-    setGameState((prev) => {
-      if (prev.gameOver || !prev.isRunning) return prev;
-
-      const head = prev.snake[0];
-      const direction = directionRef.current;
-
-      let newHead: Position;
-      switch (direction) {
-        case 'UP':
-          newHead = { x: head.x, y: head.y - 1 };
-          break;
-        case 'DOWN':
-          newHead = { x: head.x, y: head.y + 1 };
-          break;
-        case 'LEFT':
-          newHead = { x: head.x - 1, y: head.y };
-          break;
-        case 'RIGHT':
-          newHead = { x: head.x + 1, y: head.y };
-          break;
-      }
-
-      // Check wall collision
-      if (
-        newHead.x < 0 ||
-        newHead.x >= BOARD_SIZE ||
-        newHead.y < 0 ||
-        newHead.y >= BOARD_SIZE
-      ) {
-        return { ...prev, gameOver: true, isRunning: false };
-      }
-
-      // Check self collision
-      if (
-        prev.snake.some(
-          (segment) => segment.x === newHead.x && segment.y === newHead.y,
-        )
-      ) {
-        return { ...prev, gameOver: true, isRunning: false };
-      }
-
-      const newSnake = [newHead, ...prev.snake];
-
-      // Check food collision
-      if (newHead.x === prev.food.x && newHead.y === prev.food.y) {
-        return {
-          ...prev,
-          snake: newSnake,
-          food: getRandomPosition(newSnake),
-          score: prev.score + 1,
-        };
-      }
-
-      // Remove tail
-      newSnake.pop();
-
-      return { ...prev, snake: newSnake };
-    });
-  }, []);
+  function changeDirection(newDirection: Direction) {
+    setGameState((prev) => queueDirection(prev, newDirection));
+  }
 
   // Game loop
   useEffect(() => {
-    if (!gameState.isRunning || gameState.gameOver) {
-      if (gameLoopRef.current) {
-        clearInterval(gameLoopRef.current);
-        gameLoopRef.current = null;
-      }
+    if (!gameState.isRunning || gameState.gameOver || gameState.gameWon) {
       return;
     }
 
-    gameLoopRef.current = window.setInterval(() => {
-      moveSnake();
+    const gameLoopId = window.setInterval(() => {
+      setGameState((prev) => tick(prev));
     }, GAME_SPEED);
 
     return () => {
-      if (gameLoopRef.current) {
-        clearInterval(gameLoopRef.current);
-      }
+      clearInterval(gameLoopId);
     };
-  }, [gameState.isRunning, gameState.gameOver, moveSnake]);
+  }, [gameState.isRunning, gameState.gameOver, gameState.gameWon]);
 
   // Keyboard controls
   useEffect(() => {
@@ -173,49 +52,43 @@ export function useSnakeGame() {
         case 'w':
         case 'W':
           e.preventDefault();
-          changeDirection('UP');
+          setGameState((prev) => queueDirection(prev, 'UP'));
           break;
         case 'ArrowDown':
         case 's':
         case 'S':
           e.preventDefault();
-          changeDirection('DOWN');
+          setGameState((prev) => queueDirection(prev, 'DOWN'));
           break;
         case 'ArrowLeft':
         case 'a':
         case 'A':
           e.preventDefault();
-          changeDirection('LEFT');
+          setGameState((prev) => queueDirection(prev, 'LEFT'));
           break;
         case 'ArrowRight':
         case 'd':
         case 'D':
           e.preventDefault();
-          changeDirection('RIGHT');
+          setGameState((prev) => queueDirection(prev, 'RIGHT'));
           break;
         case ' ':
           e.preventDefault();
-          if (gameState.gameOver) {
-            startGame();
+          if (gameState.gameOver || gameState.gameWon) {
+            setGameState(startGameState());
           } else if (gameState.isRunning) {
-            pauseGame();
+            setGameState(pauseGameState);
           } else {
-            resumeGame();
+            setGameState(resumeGameState);
           }
           break;
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
+
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [
-    changeDirection,
-    startGame,
-    pauseGame,
-    resumeGame,
-    gameState.gameOver,
-    gameState.isRunning,
-  ]);
+  }, [gameState.gameOver, gameState.gameWon, gameState.isRunning]);
 
   return {
     gameState,

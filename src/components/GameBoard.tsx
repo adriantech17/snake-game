@@ -3,8 +3,9 @@ import React from 'react';
 interface GameBoardProps {
   boardSize: number;
   snake: Array<{ x: number; y: number }>;
-  food: { x: number; y: number };
+  food: { x: number; y: number } | null;
   gameOver: boolean;
+  gameWon?: boolean;
 }
 
 const GameBoard: React.FC<GameBoardProps> = ({
@@ -12,6 +13,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   snake,
   food,
   gameOver,
+  gameWon = false,
 }) => {
   const cellPct = 100 / boardSize;
   const gap = 0.5; // percentage gap between pieces
@@ -29,7 +31,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       <div className="grid-overlay" />
 
       {/* Food */}
-      <div className="food" style={pieceStyle(food.x, food.y)} />
+      {food && <div className="food" style={pieceStyle(food.x, food.y)} />}
 
       {/* Body segments (rendered before head so head sits on top) */}
       {snake.slice(1).map((segment, i) => (
@@ -48,9 +50,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
         </div>
       )}
 
-      {gameOver && (
+      {(gameOver || gameWon) && (
         <div className="game-over-overlay">
-          Game Over!
+          {gameWon ? 'You Win!' : 'Game Over!'}
           <br />
           Press SPACE to restart
         </div>
