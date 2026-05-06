@@ -18,24 +18,34 @@ const Controls: React.FC<ControlsProps> = ({
 }) => {
   return (
     <div className="controls">
-      <button onClick={() => onDirectionChange('UP')} className="control-btn">
+      <button
+        onClick={() => onDirectionChange('UP')}
+        className="control-btn"
+        aria-label="Move up"
+      >
         ▲
       </button>
       <div className="control-row">
         <button
           onClick={() => onDirectionChange('LEFT')}
           className="control-btn"
+          aria-label="Move left"
         >
           ◀
         </button>
         <button
           onClick={() => onDirectionChange('RIGHT')}
           className="control-btn"
+          aria-label="Move right"
         >
           ▶
         </button>
       </div>
-      <button onClick={() => onDirectionChange('DOWN')} className="control-btn">
+      <button
+        onClick={() => onDirectionChange('DOWN')}
+        className="control-btn"
+        aria-label="Move down"
+      >
         ▼
       </button>
       <div className="control-actions">
