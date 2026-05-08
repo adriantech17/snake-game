@@ -6,7 +6,7 @@ import {
   isOutOfBounds,
   positionsEqual,
 } from './movement';
-import { Direction, GameState, Position } from './types';
+import type { Direction, GameState, Position } from './types';
 
 export function createInitialGameState(
   random: () => number = Math.random,

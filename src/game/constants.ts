@@ -1,4 +1,4 @@
-import { Direction, Position } from './types';
+import type { Direction, Position } from './types';
 
 export const BOARD_SIZE = 20;
 export const GAME_SPEED = 150;

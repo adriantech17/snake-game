@@ -8,7 +8,7 @@ import {
   startGame as startGameState,
   tick,
 } from '../game/engine';
-import { Direction } from '../types';
+import type { Direction } from '../types';
 
 export function useSnakeGame() {
   const [gameState, setGameState] = useState(() => createInitialGameState());
@@ -74,13 +74,17 @@ export function useSnakeGame() {
           break;
         case ' ':
           e.preventDefault();
-          if (gameState.gameOver || gameState.gameWon) {
-            setGameState(startGameState());
-          } else if (gameState.isRunning) {
-            setGameState(pauseGameState);
-          } else {
-            setGameState(resumeGameState);
-          }
+          setGameState((prev) => {
+            if (prev.gameOver || prev.gameWon) {
+              return startGameState();
+            }
+
+            if (prev.isRunning) {
+              return pauseGameState(prev);
+            }
+
+            return resumeGameState(prev);
+          });
           break;
       }
     };
@@ -88,7 +92,7 @@ export function useSnakeGame() {
     window.addEventListener('keydown', handleKeyDown);
 
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [gameState.gameOver, gameState.gameWon, gameState.isRunning]);
+  }, []);
 
   return {
     gameState,

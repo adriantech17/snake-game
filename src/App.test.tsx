@@ -82,11 +82,11 @@ test('restarts with the spacebar after game over', async () => {
 
   fireEvent.keyDown(window, { key: ' ' });
   await advanceGame(GAME_SPEED * 11);
-  expect(screen.getByText('Game Over!')).toBeInTheDocument();
+  expect(screen.getAllByText(/game over/i)).toHaveLength(2);
 
   fireEvent.keyDown(window, { key: ' ' });
   expect(screen.getByText('Playing...')).toBeInTheDocument();
-  expect(screen.queryByText('Game Over!')).not.toBeInTheDocument();
+  expect(screen.queryByText(/game over/i)).not.toBeInTheDocument();
 });
 
 test('changes direction from keyboard input before the next tick', async () => {

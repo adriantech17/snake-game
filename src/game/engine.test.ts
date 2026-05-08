@@ -8,7 +8,7 @@ import {
   tick,
 } from './engine';
 import { placeFood } from './food';
-import { GameState, Position } from './types';
+import type { GameState, Position } from './types';
 
 function runningState(overrides: Partial<GameState> = {}): GameState {
   return {

@@ -1,5 +1,5 @@
 import { BOARD_SIZE } from './constants';
-import { Direction, Position } from './types';
+import type { Direction, Position } from './types';
 
 const DIRECTION_DELTAS: Record<Direction, Position> = {
   UP: { x: 0, y: -1 },

@@ -1,5 +1,5 @@
 import { BOARD_SIZE } from './constants';
-import { Position } from './types';
+import type { Position } from './types';
 
 function positionKey(position: Position): string {
   return `${position.x},${position.y}`;

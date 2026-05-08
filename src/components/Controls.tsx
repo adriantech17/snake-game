@@ -1,5 +1,5 @@
 import React from 'react';
-import { Direction } from '../types';
+import type { Direction } from '../types';
 
 interface ControlsProps {
   onDirectionChange: (direction: Direction) => void;
