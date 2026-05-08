@@ -10,9 +10,11 @@ expectTypeOf<Position>().toEqualTypeOf<{ x: number; y: number }>();
 
 expectTypeOf<GameState>().toEqualTypeOf<{
   snake: Position[];
-  food: Position;
+  food: Position | null;
   direction: Direction;
+  nextDirection: Direction;
   gameOver: boolean;
+  gameWon: boolean;
   score: number;
   isRunning: boolean;
 }>();

@@ -28,19 +28,21 @@ function App() {
         score={gameState.score}
         isRunning={gameState.isRunning}
         gameOver={gameState.gameOver}
+        gameWon={gameState.gameWon}
       />
       <GameBoard
         boardSize={BOARD_SIZE}
         snake={gameState.snake}
         food={gameState.food}
         gameOver={gameState.gameOver}
+        gameWon={gameState.gameWon}
       />
       <Controls
         onDirectionChange={changeDirection}
         onStart={startGame}
         onPauseResume={handlePauseResume}
         isRunning={gameState.isRunning}
-        gameOver={gameState.gameOver}
+        gameOver={gameState.gameOver || gameState.gameWon}
       />
     </div>
   );
