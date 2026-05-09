@@ -9,13 +9,16 @@ This is a Vite React + TypeScript snake game. Application code lives in `src/`:
 - `src/components/` for UI pieces such as `GameBoard`, `Controls`, and `ScoreBoard`.
 - `src/types.ts` for shared TypeScript types.
 - `src/*.test.tsx` and `src/*.test-d.ts` for runtime and type tests.
+- `.github/workflows/ci.yml` for GitHub Actions CI.
+- `.github/dependabot.yml` for npm and GitHub Actions dependency updates.
 - `public/` for static assets copied as-is; generated output goes to `dist/`.
 
 Do not edit generated directories: `build/`, `coverage/`, `dist/`, or `node_modules/`.
 
 ## Build, Test, and Development Commands
 
-- `npm install` installs dependencies from `package-lock.json`.
+- `npm ci` installs dependencies exactly from `package-lock.json`.
+- `npm install` updates `package-lock.json` when intentionally changing dependencies.
 - `npm run dev` or `npm start` runs Vite locally at `http://localhost:5173`.
 - `npm run build` type-checks with `tsc --noEmit` and bundles to `dist/`.
 - `npm test` runs the Vitest suite once.
@@ -53,8 +56,28 @@ Pull requests should include a description, linked issue when applicable, test
 commands run, and screenshots or recordings for visible gameplay or layout changes.
 Keep PRs focused; separate formatting-only changes from functional work.
 
+## CI & Dependency Maintenance
+
+The CI workflow runs on pull requests to `main`, pushes to `main`, and manual
+dispatches. It checks formatting, linting, type tests, coverage, production build,
+dependency review, npm audit, CodeQL SAST, and secret scanning.
+
+GitHub Actions are pinned to full commit SHAs for supply-chain safety. When updating
+Actions, keep the trailing version comment in sync and keep Dependabot configured for
+the `github-actions` ecosystem so pinned references receive update PRs.
+
+CI installs dependencies with `npm ci --ignore-scripts`. If a future dependency
+legitimately requires install scripts in CI, document the reason in the PR and keep
+the exception as narrow as possible.
+
+Before opening a PR that changes code or CI, run the closest local checks:
+`npm run format:check`, `npm run lint`, `npm run test:type`, `npm test`, and
+`npm run build`.
+
 ## Agent-Specific Instructions
 
 Before editing, inspect existing patterns and keep changes scoped. Avoid touching
 generated directories. If dependencies or commands change, update both `package.json`
-and this guide when relevant.
+and this guide when relevant. If CI commands, required checks, or dependency update
+policy change, update `.github/workflows/ci.yml`, `.github/dependabot.yml`, and the
+README together.
