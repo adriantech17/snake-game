@@ -26,6 +26,7 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
+      pull-requests: read
 
     steps:
       - name: Checkout repository
@@ -177,5 +178,5 @@ jobs:
         uses: trufflesecurity/trufflehog@47e7b7cd74f578e1e3145d48f669f22fd1330ca6 # v3.94.3
         with:
           path: ./
-          version: v3.94.3
+          version: 3.94.3
           extra_args: --results=verified,unknown
