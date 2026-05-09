@@ -178,5 +178,5 @@ jobs:
         uses: trufflesecurity/trufflehog@17456f8c7d042d8c82c9a8ca9e937231f9f42e26 # v3.95.2
         with:
           path: ./
-          version: 3.94.3
+          version: 3.95.2
           extra_args: --results=verified,unknown
