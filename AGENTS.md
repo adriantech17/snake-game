@@ -19,6 +19,8 @@ Do not edit generated directories: `build/`, `coverage/`, `dist/`, or `node_modu
 
 - `npm ci` installs dependencies exactly from `package-lock.json`.
 - `npm install` updates `package-lock.json` when intentionally changing dependencies.
+  Keep npm dependency versions pinned exactly; do not use semver ranges such as
+  `^` or `~`.
 - `npm run dev` or `npm start` runs Vite locally at `http://localhost:5173`.
 - `npm run build` type-checks with `tsc --noEmit` and bundles to `dist/`.
 - `npm test` runs the Vitest suite once.
@@ -26,6 +28,9 @@ Do not edit generated directories: `build/`, `coverage/`, `dist/`, or `node_modu
 - `npm run test:type` runs type-check-only Vitest tests.
 - `npm run coverage` runs tests with V8 coverage output in `coverage/`.
 - `npm run lint` checks ESLint rules; `npm run lint:fix` applies safe fixes.
+- `npm run branch:check` validates the current branch name convention.
+- `npm run commitlint:message` validates a Conventional Commit-style message from
+  standard input.
 - `npm run format:check` checks Prettier; `npm run format` rewrites files.
 
 ## Coding Style & Naming Conventions
@@ -48,31 +53,61 @@ core game logic.
 
 ## Commit & Pull Request Guidelines
 
-Recent history uses concise Conventional Commit style, such as `chore: add Vitest coverage`
-and `style: format project with Prettier`. Use `feat:`, `fix:`, `chore:`, `style:`,
-or `test:` followed by a short imperative summary.
+Use Conventional Commits for commit messages and pull request titles:
+`<type>(<scope>): <description>`. The scope is optional when the type already gives
+enough context. Allowed types are `feat`, `fix`, `docs`, `style`, `refactor`,
+`perf`, `test`, `build`, `ci`, `chore`, and `revert`. Prefer scopes that match the
+project, such as `game`, `ui`, `hooks`, `deps`, `actions`, `docs`, `config`, and
+`tests`, but do not reject other clear scopes. CI validates pull request titles and
+the first line of each pull request commit with Commitlint. Husky and Commitlint
+validate commit messages locally, and the shared branch validation script runs
+locally before push and in CI. GitHub-generated merge commit subjects are allowed
+so the repository can use merge commits, squash merge, or rebase merge.
+Git has no native local hook for creating GitHub pull requests; when needed,
+validate the intended PR title manually with `npm run commitlint:message`.
+
+Name human-authored branches as
+`<type>/<optional-issue-number>-<short-kebab-summary>`, for example
+`feat/pause-button`, `fix/mobile-controls`, or `ci/30-repository-conventions`.
+Include the issue number when the work is tied to an issue. Agent-created branches
+may use `codex/<type>-<optional-issue-number>-<summary>`. Dependabot and other
+automation branches are allowed as exceptions.
 
 Pull requests should include a description, linked issue when applicable, test
 commands run, and screenshots or recordings for visible gameplay or layout changes.
 Keep PRs focused; separate formatting-only changes from functional work.
 
+Issues should use the configured GitHub issue forms. Blank issues are disabled, and
+the forms apply labels and require the context needed to triage bugs and feature
+requests.
+
 ## CI & Dependency Maintenance
 
 The CI workflow runs on pull requests to `main`, pushes to `main`, and manual
 dispatches. It checks formatting, linting, type tests, coverage, production build,
-dependency review, npm audit, CodeQL SAST, and secret scanning.
+dependency review, npm audit, CodeQL SAST, and secret scanning. Repository policy
+checks validate pull request titles, commit messages, and branch names on pull
+requests.
+
+Use `pull_request` for policy workflows that install dependencies or run repository
+scripts. Avoid `pull_request_target` for those jobs.
 
 GitHub Actions are pinned to full commit SHAs for supply-chain safety. When updating
 Actions, keep the trailing version comment in sync and keep Dependabot configured for
 the `github-actions` ecosystem so pinned references receive update PRs.
+
+npm dependencies are pinned to exact versions for supply-chain safety. When adding
+or updating dependencies, keep `package.json` versions exact and commit the matching
+`package-lock.json` changes.
 
 CI installs dependencies with `npm ci --ignore-scripts`. If a future dependency
 legitimately requires install scripts in CI, document the reason in the PR and keep
 the exception as narrow as possible.
 
 Before opening a PR that changes code or CI, run the closest local checks:
-`npm run format:check`, `npm run lint`, `npm run test:type`, `npm test`, and
-`npm run build`.
+`npm run format:check`, `npm run lint`, `npm run branch:check`,
+`npm run commitlint:message` for the intended PR title, `npm run test:type`,
+`npm test`, and `npm run build`.
 
 ## Agent-Specific Instructions
 

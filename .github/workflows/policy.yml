@@ -1,0 +1,81 @@
+name: Repository policy
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  pull-request-policy:
+    name: Validate PR policy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Check pull request title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: printf '%s\n' "$PR_TITLE" | npx commitlint
+
+      - name: Check branch naming convention
+        env:
+          BRANCH_NAME: ${{ github.head_ref }}
+        run: npm run branch:check
+
+      - name: Check commit subjects
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -eu
+
+          allowed_automation_pattern='^(Merge |Revert "|chore\(deps\)|chore\(actions\))'
+          failed=0
+          subjects_file="$(mktemp)"
+
+          gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}/commits" --paginate \
+            --jq '.[].commit.message | split("\n")[0]' \
+            > "$subjects_file"
+
+          while IFS= read -r subject; do
+            if [[ "$subject" =~ $allowed_automation_pattern ]]; then
+              continue
+            fi
+
+            if ! printf '%s\n' "$subject" | npx commitlint; then
+              failed=1
+            fi
+          done < "$subjects_file"
+
+          if [[ "$failed" -ne 0 ]]; then
+            echo "Use Conventional Commits, for example fix(game): prevent wall collision regression."
+            exit 1
+          fi
