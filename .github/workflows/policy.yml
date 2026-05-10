@@ -59,6 +59,11 @@ jobs:
 
           allowed_automation_pattern='^(Merge |Revert "|chore\(deps\)|chore\(actions\))'
           failed=0
+          subjects_file="$(mktemp)"
+
+          gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}/commits" --paginate \
+            --jq '.[].commit.message | split("\n")[0]' \
+            > "$subjects_file"
 
           while IFS= read -r subject; do
             if [[ "$subject" =~ $allowed_automation_pattern ]]; then
@@ -68,10 +73,7 @@ jobs:
             if ! printf '%s\n' "$subject" | npx commitlint; then
               failed=1
             fi
-          done < <(
-            gh api "repos/${REPOSITORY}/pulls/${PR_NUMBER}/commits" --paginate \
-              --jq '.[].commit.message | split("\n")[0]'
-          )
+          done < "$subjects_file"
 
           if [[ "$failed" -ne 0 ]]; then
             echo "Use Conventional Commits, for example fix(game): prevent wall collision regression."

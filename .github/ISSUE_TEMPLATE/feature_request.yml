@@ -12,7 +12,7 @@ body:
     id: problem
     attributes:
       label: Problem or opportunity
-      description: What user need or workflow gap should this address?
+      description: What user need or workflow gap should this solve?
     validations:
       required: true
   - type: textarea
