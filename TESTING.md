@@ -66,7 +66,7 @@ Review generated image changes before committing them.
 Coverage is a confidence signal, not the goal. Do not add tests that only execute
 lines without protecting meaningful behavior.
 
-- Product-code global threshold: 90% for statements, branches, functions, and
+- Product-code global threshold: 95% for statements, branches, functions, and
   lines.
 - `src/game/**` threshold: 95% for statements, branches, functions, and lines.
 - Bootstrap and test setup files are excluded because they do not contain product
