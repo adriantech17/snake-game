@@ -44,6 +44,18 @@ Launches the Vitest test runner in watch mode.
 
 Runs type-level Vitest checks.
 
+### `npm run test:e2e`
+
+Runs the functional Playwright E2E suite in Chromium.
+
+### `npm run test:e2e:ui`
+
+Launches the Playwright UI runner for local functional E2E debugging.
+
+### `npm run test:visual`
+
+Runs the separate Playwright visual regression test.
+
 ### `npm run coverage`
 
 Runs the test suite with V8 coverage reporting.
@@ -84,10 +96,15 @@ Your app is ready to be deployed!
 
 Pull requests to `main` and pushes to `main` run the GitHub Actions workflow in
 `.github/workflows/ci.yml`. CI checks formatting, ESLint, type tests, coverage,
-production build, dependency review, npm audit, CodeQL analysis, and secret
-scanning. Pull requests also run repository policy checks for PR title, commit
-message, and branch naming conventions. Issues are standardized with issue forms,
-default labels, and required fields.
+production build, Playwright E2E tests, dependency review, npm audit, CodeQL
+analysis, and secret scanning. Pull requests also run repository policy checks
+for PR title, commit message, and branch naming conventions. Issues are
+standardized with issue forms, default labels, and required fields.
+
+## Testing Strategy
+
+See [TESTING.md](./TESTING.md) for the project testing pyramid, coverage policy,
+Playwright conventions, visual snapshot workflow, and LLM testing checklist.
 
 ## Contribution Conventions
 
@@ -150,7 +167,10 @@ npm run branch:check
 printf '%s\n' 'fix(game): prevent wall collision regression' | npm run commitlint:message
 npm run test:type
 npm test
+npm run coverage
 npm run build
+npm run test:e2e
+npm run test:visual
 ```
 
 Dependency updates are managed by Dependabot in `.github/dependabot.yml` for both

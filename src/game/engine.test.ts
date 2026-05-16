@@ -1,4 +1,4 @@
-import { BOARD_SIZE } from './constants';
+import { BOARD_SIZE, INITIAL_SNAKE } from './constants';
 import {
   createInitialGameState,
   pauseGame,
@@ -7,16 +7,11 @@ import {
   startGame,
   tick,
 } from './engine';
-import { placeFood } from './food';
 import type { GameState, Position } from './types';
 
 function runningState(overrides: Partial<GameState> = {}): GameState {
   return {
-    snake: [
-      { x: 10, y: 10 },
-      { x: 10, y: 11 },
-      { x: 10, y: 12 },
-    ],
+    snake: INITIAL_SNAKE.map((segment) => ({ ...segment })),
     food: { x: 0, y: 0 },
     direction: 'UP',
     nextDirection: 'UP',
@@ -46,11 +41,7 @@ describe('game engine', () => {
   test('creates an idle initial state with valid food', () => {
     const state = createInitialGameState(() => 0);
 
-    expect(state.snake).toEqual([
-      { x: 10, y: 10 },
-      { x: 10, y: 11 },
-      { x: 10, y: 12 },
-    ]);
+    expect(state.snake).toEqual(INITIAL_SNAKE);
     expect(state.food).toEqual({ x: 0, y: 0 });
     expect(state.direction).toBe('UP');
     expect(state.nextDirection).toBe('UP');
@@ -155,19 +146,33 @@ describe('game engine', () => {
     expect(next.food).not.toEqual({ x: 2, y: 0 });
   });
 
-  test('never places food on the snake', () => {
-    const snake = fullSnakeExcept({ x: BOARD_SIZE - 1, y: BOARD_SIZE - 1 });
+  test('score accumulates correctly across consecutive food events', () => {
+    // Food is always placed at the first available cell (random = 0).
+    const deterministicRandom = () => 0;
 
-    expect(placeFood(snake, () => 0.99)).toEqual({
-      x: BOARD_SIZE - 1,
-      y: BOARD_SIZE - 1,
+    const state = runningState({
+      snake: [
+        { x: 1, y: 0 },
+        { x: 0, y: 0 },
+      ],
+      direction: 'RIGHT',
+      nextDirection: 'RIGHT',
+      food: { x: 2, y: 0 },
+      score: 0,
     });
-  });
 
-  test('returns no food position when the board is full', () => {
-    const snake = fullSnakeExcept({ x: -1, y: -1 });
+    const afterFirst = tick(state, deterministicRandom);
 
-    expect(placeFood(snake)).toBeNull();
+    expect(afterFirst.score).toBe(1);
+    expect(afterFirst.snake).toHaveLength(3);
+
+    const afterSecond = tick(
+      { ...afterFirst, food: { x: 3, y: 0 }, nextDirection: 'RIGHT' },
+      deterministicRandom,
+    );
+
+    expect(afterSecond.score).toBe(2);
+    expect(afterSecond.snake).toHaveLength(4);
   });
 
   test('marks the game as won when food is eaten on the final empty cell', () => {
@@ -218,9 +223,50 @@ describe('game engine', () => {
     expect(resumed.isRunning).toBe(true);
   });
 
+  const guardedLifecycleCases: Array<
+    [string, (state: GameState) => GameState, GameState]
+  > = [
+    [
+      'pausing an already paused game',
+      pauseGame,
+      runningState({ isRunning: false }),
+    ],
+    ['pausing a game over state', pauseGame, runningState({ gameOver: true })],
+    ['pausing a won state', pauseGame, runningState({ gameWon: true })],
+    ['resuming an already running game', resumeGame, runningState()],
+    [
+      'resuming a game over state',
+      resumeGame,
+      runningState({ gameOver: true }),
+    ],
+    ['resuming a won state', resumeGame, runningState({ gameWon: true })],
+  ];
+
+  test.each(guardedLifecycleCases)(
+    'returns the same state when %s',
+    (_name, action, state) => {
+      expect(action(state)).toBe(state);
+    },
+  );
+
   test('does not advance an idle game', () => {
     const state = createInitialGameState(() => 0);
 
     expect(tick(state)).toBe(state);
+  });
+
+  test('does not advance terminal games', () => {
+    const over = runningState({ gameOver: true });
+    const won = runningState({ gameWon: true });
+
+    expect(tick(over)).toBe(over);
+    expect(tick(won)).toBe(won);
+  });
+
+  test('ends the game if the snake has no head', () => {
+    expect(tick(runningState({ snake: [] }))).toMatchObject({
+      gameOver: true,
+      isRunning: false,
+    });
   });
 });

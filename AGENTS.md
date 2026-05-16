@@ -9,6 +9,7 @@ This is a Vite React + TypeScript snake game. Application code lives in `src/`:
 - `src/components/` for UI pieces such as `GameBoard`, `Controls`, and `ScoreBoard`.
 - `src/types.ts` for shared TypeScript types.
 - `src/*.test.tsx` and `src/*.test-d.ts` for runtime and type tests.
+- `TESTING.md` for the canonical testing strategy and LLM testing checklist.
 - `.github/workflows/ci.yml` for GitHub Actions CI.
 - `.github/dependabot.yml` for npm and GitHub Actions dependency updates.
 - `public/` for static assets copied as-is; generated output goes to `dist/`.
@@ -26,6 +27,9 @@ Do not edit generated directories: `build/`, `coverage/`, `dist/`, or `node_modu
 - `npm test` runs the Vitest suite once.
 - `npm run test:watch` runs Vitest in watch mode while developing.
 - `npm run test:type` runs type-check-only Vitest tests.
+- `npm run test:e2e` runs functional Playwright E2E tests in Chromium.
+- `npm run test:e2e:ui` opens the functional Playwright UI runner.
+- `npm run test:visual` runs the separate Playwright visual regression test.
 - `npm run coverage` runs tests with V8 coverage output in `coverage/`.
 - `npm run lint` checks ESLint rules; `npm run lint:fix` applies safe fixes.
 - `npm run branch:check` validates the current branch name convention.
@@ -44,12 +48,16 @@ Run `npm run lint` and `npm run format:check` before submitting changes.
 
 ## Testing Guidelines
 
-Vitest is the test runner with Testing Library and jsdom for React tests. Keep tests
-near the code they cover using `*.test.ts`, `*.test.tsx`, or `*.test-d.ts`. Cover
-gameplay changes in `useSnakeGame` with behavior-focused cases, and cover UI changes
-through rendered output and accessible queries. Add user-event tooling when interaction
-tests are introduced. Run `npm test` routinely and `npm run coverage` when changing
-core game logic.
+Vitest is the test runner with Testing Library and jsdom for React tests.
+Playwright covers the minimal Chromium E2E layer, with visual regression kept as
+an explicit separate command. Read `TESTING.md` before adding or changing tests.
+Keep tests near the code they cover using `*.test.ts`, `*.test.tsx`, or
+`*.test-d.ts`. Cover gameplay changes in
+`src/game` and `useSnakeGame` with deterministic, behavior-focused cases, and
+cover UI changes through rendered output and accessible queries. Use fake timers
+for ticks and injected `random` functions for food placement. Do not add new test
+infrastructure unless the need is concrete and documented. Run `npm test`
+routinely and `npm run coverage` when changing core game logic.
 
 ## Commit & Pull Request Guidelines
 
@@ -107,7 +115,8 @@ the exception as narrow as possible.
 Before opening a PR that changes code or CI, run the closest local checks:
 `npm run format:check`, `npm run lint`, `npm run branch:check`,
 `npm run commitlint:message` for the intended PR title, `npm run test:type`,
-`npm test`, and `npm run build`.
+`npm test`, `npm run coverage`, `npm run build`, and Playwright checks when E2E
+or visual behavior changes.
 
 ## Agent-Specific Instructions
 
