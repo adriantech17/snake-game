@@ -1,4 +1,5 @@
 import js from '@eslint/js';
+import playwright from 'eslint-plugin-playwright';
 import vitest from '@vitest/eslint-plugin';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import react from 'eslint-plugin-react';
@@ -42,7 +43,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', '**/*.test-d.ts'],
+    files: ['**/*.test.{ts,tsx}', '**/*.test-d.ts'],
     plugins: {
       vitest,
     },
@@ -61,6 +62,17 @@ export default tseslint.config(
     },
     rules: {
       ...vitest.configs.recommended.rules,
+      'vitest/expect-expect': [
+        'error',
+        { assertFunctionNames: ['expect', 'assert', 'expectSnakeHeadAt'] },
+      ],
+    },
+  },
+  {
+    ...playwright.configs['flat/recommended'],
+    files: ['e2e/**/*.spec.ts'],
+    rules: {
+      ...playwright.configs['flat/recommended'].rules,
     },
   },
   {
