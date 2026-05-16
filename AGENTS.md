@@ -11,31 +11,31 @@ This is a Vite React + TypeScript snake game. Application code lives in `src/`:
 - `src/*.test.tsx` and `src/*.test-d.ts` for runtime and type tests.
 - `TESTING.md` for the canonical testing strategy and LLM testing checklist.
 - `.github/workflows/ci.yml` for GitHub Actions CI.
-- `.github/dependabot.yml` for npm and GitHub Actions dependency updates.
+- `.github/dependabot.yml` for pnpm-managed npm package and GitHub Actions dependency updates.
 - `public/` for static assets copied as-is; generated output goes to `dist/`.
 
 Do not edit generated directories: `build/`, `coverage/`, `dist/`, or `node_modules/`.
 
 ## Build, Test, and Development Commands
 
-- `npm ci` installs dependencies exactly from `package-lock.json`.
-- `npm install` updates `package-lock.json` when intentionally changing dependencies.
-  Keep npm dependency versions pinned exactly; do not use semver ranges such as
+- `pnpm install --frozen-lockfile` installs dependencies exactly from `pnpm-lock.yaml`.
+- `pnpm install` updates `pnpm-lock.yaml` when intentionally changing dependencies.
+  Keep npm package dependency versions pinned exactly; do not use semver ranges such as
   `^` or `~`.
-- `npm run dev` or `npm start` runs Vite locally at `http://localhost:5173`.
-- `npm run build` type-checks with `tsc --noEmit` and bundles to `dist/`.
-- `npm test` runs the Vitest suite once.
-- `npm run test:watch` runs Vitest in watch mode while developing.
-- `npm run test:type` runs type-check-only Vitest tests.
-- `npm run test:e2e` runs functional Playwright E2E tests in Chromium.
-- `npm run test:e2e:ui` opens the functional Playwright UI runner.
-- `npm run test:visual` runs the separate Playwright visual regression test.
-- `npm run coverage` runs tests with V8 coverage output in `coverage/`.
-- `npm run lint` checks ESLint rules; `npm run lint:fix` applies safe fixes.
-- `npm run branch:check` validates the current branch name convention.
-- `npm run commitlint:message` validates a Conventional Commit-style message from
+- `pnpm run dev` or `pnpm start` runs Vite locally at `http://localhost:5173`.
+- `pnpm run build` type-checks with `tsc --noEmit` and bundles to `dist/`.
+- `pnpm test` runs the Vitest suite once.
+- `pnpm run test:watch` runs Vitest in watch mode while developing.
+- `pnpm run test:type` runs type-check-only Vitest tests.
+- `pnpm run test:e2e` runs functional Playwright E2E tests in Chromium.
+- `pnpm run test:e2e:ui` opens the functional Playwright UI runner.
+- `pnpm run test:visual` runs the separate Playwright visual regression test.
+- `pnpm run coverage` runs tests with V8 coverage output in `coverage/`.
+- `pnpm run lint` checks ESLint rules; `pnpm run lint:fix` applies safe fixes.
+- `pnpm run branch:check` validates the current branch name convention.
+- `pnpm run commitlint:message` validates a Conventional Commit-style message from
   standard input.
-- `npm run format:check` checks Prettier; `npm run format` rewrites files.
+- `pnpm run format:check` checks Prettier; `pnpm run format` rewrites files.
 
 ## Coding Style & Naming Conventions
 
@@ -44,7 +44,7 @@ Use TypeScript and React function components. Name component files in PascalCase
 Put shared cross-module types in `src/types.ts`.
 
 Prettier handles formatting. ESLint enforces TypeScript, React, and React Hooks rules.
-Run `npm run lint` and `npm run format:check` before submitting changes.
+Run `pnpm run lint` and `pnpm run format:check` before submitting changes.
 
 ## Testing Guidelines
 
@@ -56,8 +56,8 @@ Keep tests near the code they cover using `*.test.ts`, `*.test.tsx`, or
 `src/game` and `useSnakeGame` with deterministic, behavior-focused cases, and
 cover UI changes through rendered output and accessible queries. Use fake timers
 for ticks and injected `random` functions for food placement. Do not add new test
-infrastructure unless the need is concrete and documented. Run `npm test`
-routinely and `npm run coverage` when changing core game logic.
+infrastructure unless the need is concrete and documented. Run `pnpm test`
+routinely and `pnpm run coverage` when changing core game logic.
 
 ## Commit & Pull Request Guidelines
 
@@ -72,7 +72,7 @@ validate commit messages locally, and the shared branch validation script runs
 locally before push and in CI. GitHub-generated merge commit subjects are allowed
 so the repository can use merge commits, squash merge, or rebase merge.
 Git has no native local hook for creating GitHub pull requests; when needed,
-validate the intended PR title manually with `npm run commitlint:message`.
+validate the intended PR title manually with `pnpm run commitlint:message`.
 
 Name human-authored branches as
 `<type>/<optional-issue-number>-<short-kebab-summary>`, for example
@@ -93,7 +93,7 @@ requests.
 
 The CI workflow runs on pull requests to `main`, pushes to `main`, and manual
 dispatches. It checks formatting, linting, type tests, coverage, production build,
-dependency review, npm audit, CodeQL SAST, and secret scanning. Repository policy
+dependency review, pnpm audit, CodeQL SAST, and secret scanning. Repository policy
 checks validate pull request titles, commit messages, and branch names on pull
 requests.
 
@@ -104,18 +104,18 @@ GitHub Actions are pinned to full commit SHAs for supply-chain safety. When upda
 Actions, keep the trailing version comment in sync and keep Dependabot configured for
 the `github-actions` ecosystem so pinned references receive update PRs.
 
-npm dependencies are pinned to exact versions for supply-chain safety. When adding
+Package dependencies are pinned to exact versions for supply-chain safety. When adding
 or updating dependencies, keep `package.json` versions exact and commit the matching
-`package-lock.json` changes.
+`pnpm-lock.yaml` changes.
 
-CI installs dependencies with `npm ci --ignore-scripts`. If a future dependency
+CI installs dependencies with `pnpm install --frozen-lockfile --ignore-scripts`. If a future dependency
 legitimately requires install scripts in CI, document the reason in the PR and keep
 the exception as narrow as possible.
 
 Before opening a PR that changes code or CI, run the closest local checks:
-`npm run format:check`, `npm run lint`, `npm run branch:check`,
-`npm run commitlint:message` for the intended PR title, `npm run test:type`,
-`npm test`, `npm run coverage`, `npm run build`, and Playwright checks when E2E
+`pnpm run format:check`, `pnpm run lint`, `pnpm run branch:check`,
+`pnpm run commitlint:message` for the intended PR title, `pnpm run test:type`,
+`pnpm test`, `pnpm run coverage`, `pnpm run build`, and Playwright checks when E2E
 or visual behavior changes.
 
 ## Agent-Specific Instructions
