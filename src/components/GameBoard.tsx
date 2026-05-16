@@ -27,11 +27,19 @@ const GameBoard: React.FC<GameBoardProps> = ({
   });
 
   return (
-    <div className="game-board">
+    <div className="game-board" role="img" aria-label="Snake game board">
       <div className="grid-overlay" />
 
       {/* Food */}
-      {food && <div className="food" style={pieceStyle(food.x, food.y)} />}
+      {food && (
+        <div
+          className="food"
+          data-testid="food"
+          data-x={food.x}
+          data-y={food.y}
+          style={pieceStyle(food.x, food.y)}
+        />
+      )}
 
       {/* Body segments (rendered before head so head sits on top) */}
       {snake.slice(1).map((segment, i) => (
@@ -44,7 +52,13 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
       {/* Head */}
       {snake[0] && (
-        <div className="snake-head" style={pieceStyle(snake[0].x, snake[0].y)}>
+        <div
+          className="snake-head"
+          data-testid="snake-head"
+          data-x={snake[0].x}
+          data-y={snake[0].y}
+          style={pieceStyle(snake[0].x, snake[0].y)}
+        >
           <span className="eye eye-left" />
           <span className="eye eye-right" />
         </div>

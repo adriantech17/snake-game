@@ -2,7 +2,11 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, vi } from 'vitest';
 import App from './App';
-import { GAME_SPEED } from './game/constants';
+import { GAME_SPEED, INITIAL_SNAKE } from './game/constants';
+
+// Ticks needed for the initial UP-moving snake to leave the board:
+// head starts at y=INITIAL_SNAKE[0].y; it exits at y=-1.
+const TICKS_TO_GAME_OVER = INITIAL_SNAKE[0].y + 1;
 
 function setup() {
   const user = userEvent.setup();
@@ -11,13 +15,11 @@ function setup() {
   return { user, ...view };
 }
 
-function getSnakeHead(container: HTMLElement): HTMLElement {
-  const head = container.querySelector<HTMLElement>('.snake-head');
-  if (!head) {
-    throw new Error('Expected the snake head to be rendered');
-  }
+function expectSnakeHeadAt(x: number, y: number) {
+  const head = screen.getByTestId('snake-head');
 
-  return head;
+  expect(head).toHaveAttribute('data-x', String(x));
+  expect(head).toHaveAttribute('data-y', String(y));
 }
 
 async function advanceGame(ms: number) {
@@ -31,15 +33,18 @@ afterEach(() => {
 });
 
 test('renders the snake game heading', () => {
-  setup();
+  render(<App />);
   expect(
     screen.getByRole('heading', { name: /snake game/i }),
   ).toBeInTheDocument();
 });
 
 test('renders accessible direction controls', () => {
-  setup();
+  render(<App />);
 
+  expect(
+    screen.getByRole('img', { name: /snake game board/i }),
+  ).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Move up' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Move left' })).toBeInTheDocument();
   expect(
@@ -63,7 +68,7 @@ test('starts, pauses, and resumes from visible controls', async () => {
   expect(screen.getByText('Playing...')).toBeInTheDocument();
 });
 
-test('toggles start, pause, resume, and restart with the spacebar', async () => {
+test('toggles start, pause, and resume with the spacebar', async () => {
   const { user } = setup();
 
   await user.keyboard('[Space]');
@@ -81,7 +86,7 @@ test('restarts with the spacebar after game over', async () => {
   render(<App />);
 
   fireEvent.keyDown(window, { key: ' ' });
-  await advanceGame(GAME_SPEED * 11);
+  await advanceGame(GAME_SPEED * TICKS_TO_GAME_OVER);
   expect(screen.getAllByText(/game over/i)).toHaveLength(2);
 
   fireEvent.keyDown(window, { key: ' ' });
@@ -89,30 +94,77 @@ test('restarts with the spacebar after game over', async () => {
   expect(screen.queryByText(/game over/i)).not.toBeInTheDocument();
 });
 
+test('restarts with the visible control after game over', async () => {
+  vi.useFakeTimers();
+  render(<App />);
+
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+  await advanceGame(GAME_SPEED * TICKS_TO_GAME_OVER);
+  expect(screen.getAllByText(/game over/i)).toHaveLength(2);
+
+  fireEvent.click(screen.getByRole('button', { name: 'Restart' }));
+  expect(screen.getByText('Playing...')).toBeInTheDocument();
+  expect(screen.queryByText(/game over/i)).not.toBeInTheDocument();
+});
+
 test('changes direction from keyboard input before the next tick', async () => {
   vi.useFakeTimers();
-  const { container } = render(<App />);
+  render(<App />);
 
   fireEvent.click(screen.getByRole('button', { name: 'Start' }));
   fireEvent.keyDown(window, { key: 'ArrowRight' });
   await advanceGame(GAME_SPEED);
 
-  expect(getSnakeHead(container)).toHaveStyle({
-    left: '55.25%',
-    top: '50.25%',
-  });
+  expectSnakeHeadAt(11, 10);
 });
+
+test.each([
+  ['ArrowLeft', 9, 10],
+  ['a', 9, 10],
+  ['A', 9, 10],
+  ['d', 11, 10],
+  ['D', 11, 10],
+] as const)('changes direction from the %s key', async (key, x, y) => {
+  vi.useFakeTimers();
+  render(<App />);
+
+  fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+  fireEvent.keyDown(window, { key });
+  await advanceGame(GAME_SPEED);
+
+  expectSnakeHeadAt(x, y);
+});
+
+test.each([
+  ['ArrowUp', 11, 9],
+  ['ArrowDown', 11, 11],
+  ['w', 11, 9],
+  ['W', 11, 9],
+  ['s', 11, 11],
+  ['S', 11, 11],
+] as const)(
+  'changes direction from the %s key after horizontal movement',
+  async (key, x, y) => {
+    vi.useFakeTimers();
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+    fireEvent.keyDown(window, { key: 'd' });
+    await advanceGame(GAME_SPEED);
+    fireEvent.keyDown(window, { key });
+    await advanceGame(GAME_SPEED);
+
+    expectSnakeHeadAt(x, y);
+  },
+);
 
 test('changes direction from pointer controls', async () => {
   vi.useFakeTimers();
-  const { container } = render(<App />);
+  render(<App />);
 
   fireEvent.click(screen.getByRole('button', { name: 'Start' }));
   fireEvent.click(screen.getByRole('button', { name: 'Move right' }));
   await advanceGame(GAME_SPEED);
 
-  expect(getSnakeHead(container)).toHaveStyle({
-    left: '55.25%',
-    top: '50.25%',
-  });
+  expectSnakeHeadAt(11, 10);
 });
