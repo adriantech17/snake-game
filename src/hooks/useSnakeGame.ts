@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BOARD_SIZE, GAME_SPEED } from '../game/constants';
+import { GAME_SPEED } from '../game/constants';
 import {
   createInitialGameState,
   pauseGame as pauseGameState,
@@ -8,7 +8,35 @@ import {
   startGame as startGameState,
   tick,
 } from '../game/engine';
-import type { Direction } from '../types';
+import type { Direction, GameState } from '../types';
+
+/** Pure reducer used by both the keyboard handler and the exposed toggle. */
+function resolvePrimaryAction(state: GameState): GameState {
+  if (
+    state.status === 'idle' ||
+    state.status === 'gameOver' ||
+    state.status === 'won'
+  ) {
+    return startGameState();
+  }
+
+  if (state.status === 'running') {
+    return pauseGameState(state);
+  }
+
+  return resumeGameState(state);
+}
+
+function queueDirectionIfActive(
+  state: GameState,
+  nextDirection: Direction,
+): GameState {
+  if (state.status !== 'running' && state.status !== 'paused') {
+    return state;
+  }
+
+  return queueDirection(state, nextDirection);
+}
 
 export function useSnakeGame() {
   const [gameState, setGameState] = useState(() => createInitialGameState());
@@ -25,13 +53,17 @@ export function useSnakeGame() {
     setGameState(resumeGameState);
   }
 
+  function togglePrimaryAction() {
+    setGameState(resolvePrimaryAction);
+  }
+
   function changeDirection(newDirection: Direction) {
-    setGameState((prev) => queueDirection(prev, newDirection));
+    setGameState((prev) => queueDirectionIfActive(prev, newDirection));
   }
 
   // Game loop
   useEffect(() => {
-    if (!gameState.isRunning || gameState.gameOver || gameState.gameWon) {
+    if (gameState.status !== 'running') {
       return;
     }
 
@@ -42,7 +74,7 @@ export function useSnakeGame() {
     return () => {
       clearInterval(gameLoopId);
     };
-  }, [gameState.isRunning, gameState.gameOver, gameState.gameWon]);
+  }, [gameState.status]);
 
   // Keyboard controls
   useEffect(() => {
@@ -52,39 +84,29 @@ export function useSnakeGame() {
         case 'w':
         case 'W':
           e.preventDefault();
-          setGameState((prev) => queueDirection(prev, 'UP'));
+          setGameState((prev) => queueDirectionIfActive(prev, 'UP'));
           break;
         case 'ArrowDown':
         case 's':
         case 'S':
           e.preventDefault();
-          setGameState((prev) => queueDirection(prev, 'DOWN'));
+          setGameState((prev) => queueDirectionIfActive(prev, 'DOWN'));
           break;
         case 'ArrowLeft':
         case 'a':
         case 'A':
           e.preventDefault();
-          setGameState((prev) => queueDirection(prev, 'LEFT'));
+          setGameState((prev) => queueDirectionIfActive(prev, 'LEFT'));
           break;
         case 'ArrowRight':
         case 'd':
         case 'D':
           e.preventDefault();
-          setGameState((prev) => queueDirection(prev, 'RIGHT'));
+          setGameState((prev) => queueDirectionIfActive(prev, 'RIGHT'));
           break;
         case ' ':
           e.preventDefault();
-          setGameState((prev) => {
-            if (prev.gameOver || prev.gameWon) {
-              return startGameState();
-            }
-
-            if (prev.isRunning) {
-              return pauseGameState(prev);
-            }
-
-            return resumeGameState(prev);
-          });
+          setGameState(resolvePrimaryAction);
           break;
       }
     };
@@ -99,7 +121,7 @@ export function useSnakeGame() {
     startGame,
     pauseGame,
     resumeGame,
+    togglePrimaryAction,
     changeDirection,
-    BOARD_SIZE,
   };
 }

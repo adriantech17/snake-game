@@ -56,7 +56,7 @@ test('renders accessible direction controls', () => {
 test('starts, pauses, and resumes from visible controls', async () => {
   const { user } = setup();
 
-  expect(screen.getByText('Paused')).toBeInTheDocument();
+  expect(screen.getByText('Ready')).toBeInTheDocument();
 
   await user.click(screen.getByRole('button', { name: 'Start' }));
   expect(screen.getByText('Playing...')).toBeInTheDocument();
@@ -64,7 +64,7 @@ test('starts, pauses, and resumes from visible controls', async () => {
   await user.click(screen.getByRole('button', { name: 'Pause' }));
   expect(screen.getByText('Paused')).toBeInTheDocument();
 
-  await user.click(screen.getByRole('button', { name: 'Start' }));
+  await user.click(screen.getByRole('button', { name: 'Resume' }));
   expect(screen.getByText('Playing...')).toBeInTheDocument();
 });
 

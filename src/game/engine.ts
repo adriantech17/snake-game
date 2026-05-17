@@ -18,39 +18,37 @@ export function createInitialGameState(
     food: placeFood(snake, random),
     direction: INITIAL_DIRECTION,
     nextDirection: INITIAL_DIRECTION,
-    gameOver: false,
-    gameWon: false,
     score: 0,
-    isRunning: false,
+    status: 'idle',
   };
 }
 
 export function startGame(random: () => number = Math.random): GameState {
   return {
     ...createInitialGameState(random),
-    isRunning: true,
+    status: 'running',
   };
 }
 
 export function pauseGame(state: GameState): GameState {
-  if (!state.isRunning || state.gameOver || state.gameWon) {
+  if (state.status !== 'running') {
     return state;
   }
 
   return {
     ...state,
-    isRunning: false,
+    status: 'paused',
   };
 }
 
 export function resumeGame(state: GameState): GameState {
-  if (state.isRunning || state.gameOver || state.gameWon) {
+  if (state.status !== 'paused') {
     return state;
   }
 
   return {
     ...state,
-    isRunning: true,
+    status: 'running',
   };
 }
 
@@ -58,7 +56,10 @@ export function queueDirection(
   state: GameState,
   nextDirection: Direction,
 ): GameState {
-  if (isOppositeDirection(state.direction, nextDirection)) {
+  if (
+    isOppositeDirection(state.direction, nextDirection) ||
+    isOppositeDirection(state.nextDirection, nextDirection)
+  ) {
     return state;
   }
 
@@ -82,7 +83,7 @@ export function tick(
   state: GameState,
   random: () => number = Math.random,
 ): GameState {
-  if (!state.isRunning || state.gameOver || state.gameWon) {
+  if (state.status !== 'running') {
     return state;
   }
 
@@ -91,8 +92,7 @@ export function tick(
   if (!head) {
     return {
       ...state,
-      gameOver: true,
-      isRunning: false,
+      status: 'gameOver',
     };
   }
 
@@ -104,8 +104,7 @@ export function tick(
       ...state,
       direction,
       nextDirection: direction,
-      gameOver: true,
-      isRunning: false,
+      status: 'gameOver',
     };
   }
 
@@ -116,8 +115,7 @@ export function tick(
       ...state,
       direction,
       nextDirection: direction,
-      gameOver: true,
-      isRunning: false,
+      status: 'gameOver',
     };
   }
 
@@ -125,7 +123,7 @@ export function tick(
     ? [nextHead, ...state.snake]
     : [nextHead, ...state.snake.slice(0, -1)];
   const food = ateFood ? placeFood(snake, random) : state.food;
-  const gameWon = ateFood && food === null;
+  const status = ateFood && food === null ? 'won' : state.status;
 
   return {
     ...state,
@@ -133,8 +131,7 @@ export function tick(
     food,
     direction,
     nextDirection: direction,
-    gameWon,
-    isRunning: gameWon ? false : state.isRunning,
+    status,
     score: ateFood ? state.score + 1 : state.score,
   };
 }

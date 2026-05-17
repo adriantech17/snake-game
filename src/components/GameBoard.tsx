@@ -1,19 +1,18 @@
 import React from 'react';
+import type { GameStatus, Position } from '../types';
 
 interface GameBoardProps {
   boardSize: number;
-  snake: Array<{ x: number; y: number }>;
-  food: { x: number; y: number } | null;
-  gameOver: boolean;
-  gameWon?: boolean;
+  snake: Position[];
+  food: Position | null;
+  status: GameStatus;
 }
 
 const GameBoard: React.FC<GameBoardProps> = ({
   boardSize,
   snake,
   food,
-  gameOver,
-  gameWon = false,
+  status,
 }) => {
   const cellPct = 100 / boardSize;
   const gap = 0.5; // percentage gap between pieces
@@ -64,9 +63,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
         </div>
       )}
 
-      {(gameOver || gameWon) && (
+      {(status === 'gameOver' || status === 'won') && (
         <div className="game-over-overlay">
-          {gameWon ? 'You Win!' : 'Game Over!'}
+          {status === 'won' ? 'You Win!' : 'Game Over!'}
           <br />
           Press SPACE to restart
         </div>
