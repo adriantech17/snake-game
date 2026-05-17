@@ -1,29 +1,25 @@
 import React from 'react';
+import type { GameStatus } from '../types';
 
 interface ScoreBoardProps {
   score: number;
-  isRunning: boolean;
-  gameOver: boolean;
-  gameWon?: boolean;
+  status: GameStatus;
 }
 
-const ScoreBoard: React.FC<ScoreBoardProps> = ({
-  score,
-  isRunning,
-  gameOver,
-  gameWon = false,
-}) => {
-  let status = 'Paused';
+const statusLabel: Record<GameStatus, string> = {
+  idle: 'Ready',
+  running: 'Playing...',
+  paused: 'Paused',
+  gameOver: 'Game Over!',
+  won: 'You Win!',
+};
 
-  if (isRunning) status = 'Playing...';
-  if (gameOver) status = 'Game Over!';
-  if (gameWon) status = 'You Win!';
-
+const ScoreBoard: React.FC<ScoreBoardProps> = ({ score, status }) => {
   return (
     <div className="score-board">
       <h2>Snake Game</h2>
       <p>Score: {score}</p>
-      <p>{status}</p>
+      <p>{statusLabel[status]}</p>
     </div>
   );
 };

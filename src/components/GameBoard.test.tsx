@@ -11,7 +11,7 @@ test('renders an accessible game board with snake and food', () => {
         { x: 10, y: 11 },
       ]}
       food={{ x: 3, y: 4 }}
-      gameOver={false}
+      status="running"
     />,
   );
 
@@ -31,7 +31,7 @@ test('renders game over overlay', () => {
       boardSize={BOARD_SIZE}
       snake={[{ x: 10, y: 10 }]}
       food={null}
-      gameOver
+      status="gameOver"
     />,
   );
 
@@ -45,8 +45,7 @@ test('renders win overlay', () => {
       boardSize={BOARD_SIZE}
       snake={[{ x: 10, y: 10 }]}
       food={null}
-      gameOver={false}
-      gameWon
+      status="won"
     />,
   );
 
@@ -56,12 +55,7 @@ test('renders win overlay', () => {
 
 test('renders an empty board without optional pieces', () => {
   render(
-    <GameBoard
-      boardSize={BOARD_SIZE}
-      snake={[]}
-      food={null}
-      gameOver={false}
-    />,
+    <GameBoard boardSize={BOARD_SIZE} snake={[]} food={null} status="idle" />,
   );
 
   expect(

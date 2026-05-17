@@ -1,1 +1,1 @@
-export type { Direction, GameState, Position } from './game/types';
+export type { Direction, GameState, GameStatus, Position } from './game/types';

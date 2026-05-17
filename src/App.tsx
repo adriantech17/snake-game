@@ -2,47 +2,25 @@ import { useSnakeGame } from './hooks/useSnakeGame';
 import GameBoard from './components/GameBoard';
 import ScoreBoard from './components/ScoreBoard';
 import Controls from './components/Controls';
+import { BOARD_SIZE } from './game/constants';
 import './App.css';
 
 function App() {
-  const {
-    gameState,
-    startGame,
-    pauseGame,
-    resumeGame,
-    changeDirection,
-    BOARD_SIZE,
-  } = useSnakeGame();
-
-  const handlePauseResume = () => {
-    if (gameState.isRunning) {
-      pauseGame();
-    } else {
-      resumeGame();
-    }
-  };
+  const { gameState, togglePrimaryAction, changeDirection } = useSnakeGame();
 
   return (
     <div className="game-container">
-      <ScoreBoard
-        score={gameState.score}
-        isRunning={gameState.isRunning}
-        gameOver={gameState.gameOver}
-        gameWon={gameState.gameWon}
-      />
+      <ScoreBoard score={gameState.score} status={gameState.status} />
       <GameBoard
         boardSize={BOARD_SIZE}
         snake={gameState.snake}
         food={gameState.food}
-        gameOver={gameState.gameOver}
-        gameWon={gameState.gameWon}
+        status={gameState.status}
       />
       <Controls
         onDirectionChange={changeDirection}
-        onStart={startGame}
-        onPauseResume={handlePauseResume}
-        isRunning={gameState.isRunning}
-        gameOver={gameState.gameOver || gameState.gameWon}
+        onPrimaryAction={togglePrimaryAction}
+        status={gameState.status}
       />
     </div>
   );

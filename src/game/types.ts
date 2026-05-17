@@ -1,4 +1,5 @@
 export type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
+export type GameStatus = 'idle' | 'running' | 'paused' | 'gameOver' | 'won';
 
 export interface Position {
   x: number;
@@ -10,8 +11,6 @@ export interface GameState {
   food: Position | null;
   direction: Direction;
   nextDirection: Direction;
-  gameOver: boolean;
-  gameWon: boolean;
   score: number;
-  isRunning: boolean;
+  status: GameStatus;
 }

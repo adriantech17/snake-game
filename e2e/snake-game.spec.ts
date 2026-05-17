@@ -7,7 +7,7 @@ test('renders the initial game shell in a real browser', async ({ page }) => {
     page.getByRole('heading', { name: /snake game/i }),
   ).toBeVisible();
   await expect(page.getByText('Score: 0')).toBeVisible();
-  await expect(page.getByText('Paused')).toBeVisible();
+  await expect(page.getByText('Ready')).toBeVisible();
   await expect(
     page.getByRole('img', { name: /snake game board/i }),
   ).toBeVisible();
@@ -32,7 +32,7 @@ test('starts, pauses, resumes, and accepts keyboard input in a real browser', as
   await page.getByRole('button', { name: 'Pause' }).click();
   await expect(page.getByText('Paused')).toBeVisible();
 
-  await page.getByRole('button', { name: 'Start' }).click();
+  await page.getByRole('button', { name: 'Resume' }).click();
   await expect(page.getByText('Playing...')).toBeVisible();
   await page.keyboard.press('ArrowRight');
 
