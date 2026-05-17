@@ -31,9 +31,9 @@ that need a real browser.
 
 ## Playwright
 
-- Run functional E2E with `npm run test:e2e`.
-- Run the functional E2E Playwright UI with `npm run test:e2e:ui`.
-- Run visual snapshots separately with `npm run test:visual`.
+- Run functional E2E with `pnpm run test:e2e`.
+- Run the functional E2E Playwright UI with `pnpm run test:e2e:ui`.
+- Run visual snapshots separately with `pnpm run test:visual`.
 - Keep Playwright on Chromium only unless a future issue explicitly adds
   cross-browser coverage.
 - Use the configured `baseURL` and navigate with relative paths such as `/`.
@@ -49,14 +49,14 @@ before comparison.
 
 Playwright screenshot baselines are environment-sensitive. Generate and review
 snapshots in the same operating-system/browser environment where they will be
-compared. Functional CI intentionally runs `npm run test:e2e`; visual snapshots
-stay behind the explicit `npm run test:visual` command until the comparison
+compared. Functional CI intentionally runs `pnpm run test:e2e`; visual snapshots
+stay behind the explicit `pnpm run test:visual` command until the comparison
 environment is standardized.
 
 To update snapshots intentionally:
 
 ```sh
-npm run test:visual -- --update-snapshots
+pnpm run test:visual -- --update-snapshots
 ```
 
 Review generated image changes before committing them.
