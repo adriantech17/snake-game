@@ -15,14 +15,14 @@ updates:
       prefix: 'chore(deps)'
       include: 'scope'
     groups:
-      pnpm-production-minor-patch:
+      npm-production-minor-patch:
         dependency-type: 'production'
         patterns:
           - '*'
         update-types:
           - 'minor'
           - 'patch'
-      pnpm-development-minor-patch:
+      npm-development-minor-patch:
         dependency-type: 'development'
         patterns:
           - '*'
