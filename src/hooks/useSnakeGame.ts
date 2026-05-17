@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { GAME_SPEED } from '../game/constants';
 import {
   createInitialGameState,
@@ -9,6 +9,8 @@ import {
   tick,
 } from '../game/engine';
 import type { Direction, GameState } from '../types';
+
+const ELAPSED_TIME_INTERVAL_MS = 1000;
 
 /** Pure reducer used by both the keyboard handler and the exposed toggle. */
 function resolvePrimaryAction(state: GameState): GameState {
@@ -40,8 +42,11 @@ function queueDirectionIfActive(
 
 export function useSnakeGame() {
   const [gameState, setGameState] = useState(() => createInitialGameState());
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const previousStatusRef = useRef(gameState.status);
 
   function startGame() {
+    setElapsedSeconds(0);
     setGameState(startGameState());
   }
 
@@ -67,12 +72,43 @@ export function useSnakeGame() {
       return;
     }
 
-    const gameLoopId = window.setInterval(() => {
+    const gameLoopId = setInterval(() => {
       setGameState((prev) => tick(prev));
     }, GAME_SPEED);
 
     return () => {
       clearInterval(gameLoopId);
+    };
+  }, [gameState.status]);
+
+  // Reset the elapsed time only when starting a fresh run.
+  useEffect(() => {
+    const previousStatus = previousStatusRef.current;
+
+    if (
+      gameState.status === 'running' &&
+      (previousStatus === 'idle' ||
+        previousStatus === 'gameOver' ||
+        previousStatus === 'won')
+    ) {
+      setElapsedSeconds(0);
+    }
+
+    previousStatusRef.current = gameState.status;
+  }, [gameState.status]);
+
+  // Elapsed run timer
+  useEffect(() => {
+    if (gameState.status !== 'running') {
+      return;
+    }
+
+    const elapsedTimeId = setInterval(() => {
+      setElapsedSeconds((prev) => prev + 1);
+    }, ELAPSED_TIME_INTERVAL_MS);
+
+    return () => {
+      clearInterval(elapsedTimeId);
     };
   }, [gameState.status]);
 
@@ -118,6 +154,7 @@ export function useSnakeGame() {
 
   return {
     gameState,
+    elapsedSeconds,
     startGame,
     pauseGame,
     resumeGame,

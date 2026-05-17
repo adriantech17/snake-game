@@ -37,6 +37,7 @@ test('renders the snake game heading', () => {
   expect(
     screen.getByRole('heading', { name: /snake game/i }),
   ).toBeInTheDocument();
+  expect(screen.getByText('Time: 00:00')).toBeInTheDocument();
 });
 
 test('renders accessible direction controls', () => {
