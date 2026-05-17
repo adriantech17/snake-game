@@ -28,6 +28,7 @@ rendering concerns.
 
 - React state for the current `GameState`.
 - The interval-driven game loop while the game is running.
+- The elapsed run timer while the game is running.
 - Keyboard controls for arrows, `W`, `A`, `S`, `D`, and `Space`.
 - Public callbacks for starting, pausing, resuming, restarting, and changing
   direction from UI controls.
@@ -43,7 +44,7 @@ hook:
 - `GameBoard` renders the board, food, snake body, snake head, and terminal
   overlays.
 - `Controls` renders direction buttons and the primary action button.
-- `ScoreBoard` renders score and status text.
+- `ScoreBoard` renders score, elapsed time, and status text.
 
 Components should stay presentational, accessible, and easy to test with
 rendered output.
@@ -63,9 +64,11 @@ describe game state or rules.
 
 1. UI or keyboard input calls a hook action.
 2. The hook updates React state by calling pure engine functions.
-3. While running, the hook schedules ticks at `GAME_SPEED`.
-4. Each tick computes the next state in the engine.
-5. React re-renders the presentational components with the new state.
+3. While running, the hook schedules game ticks at `GAME_SPEED` and elapsed
+   time updates once per second.
+4. Each game tick computes the next state in the engine.
+5. React re-renders the presentational components with the new state and
+   elapsed time.
 
 Food placement accepts an injected `random` function in the pure layer so tests
 can avoid real randomness and cover edge cases such as full-board wins.

@@ -30,6 +30,27 @@ test('startGame transitions to a running state', () => {
   expect(result.current.gameState.status).toBe('running');
 });
 
+test('tracks elapsed time only while running', () => {
+  vi.useFakeTimers();
+  const { result } = renderHook(() => useSnakeGame());
+
+  expect(result.current.elapsedSeconds).toBe(0);
+
+  act(() => {
+    vi.advanceTimersByTime(3000);
+  });
+  expect(result.current.elapsedSeconds).toBe(0);
+
+  act(() => {
+    result.current.startGame();
+  });
+  act(() => {
+    vi.advanceTimersByTime(1000);
+  });
+
+  expect(result.current.elapsedSeconds).toBe(1);
+});
+
 test('pauseGame stops a running game without ending it', () => {
   vi.useFakeTimers();
   const { result } = renderHook(() => useSnakeGame());
@@ -108,6 +129,44 @@ test('game loop does not advance while paused', () => {
   expect(result.current.gameState.snake).toEqual(snakeAfterPause);
 });
 
+test('elapsed time pauses and resumes without losing accumulated time', () => {
+  vi.useFakeTimers();
+  const { result } = renderHook(() => useSnakeGame());
+
+  act(() => {
+    result.current.startGame();
+  });
+  act(() => {
+    vi.advanceTimersByTime(900);
+  });
+  act(() => {
+    result.current.pauseGame();
+  });
+  act(() => {
+    vi.advanceTimersByTime(5000);
+  });
+
+  expect(result.current.elapsedSeconds).toBe(0);
+
+  act(() => {
+    result.current.changeDirection('RIGHT');
+  });
+  act(() => {
+    result.current.resumeGame();
+  });
+  act(() => {
+    vi.advanceTimersByTime(99);
+  });
+
+  expect(result.current.elapsedSeconds).toBe(0);
+
+  act(() => {
+    vi.advanceTimersByTime(1);
+  });
+
+  expect(result.current.elapsedSeconds).toBe(1);
+});
+
 test('does not advance after game over', () => {
   vi.useFakeTimers();
   const { result } = renderHook(() => useSnakeGame());
@@ -128,6 +187,123 @@ test('does not advance after game over', () => {
   });
 
   expect(result.current.gameState.snake).toEqual(snakeAtGameOver);
+});
+
+test('elapsed time stops at game over', () => {
+  vi.useFakeTimers();
+  const { result } = renderHook(() => useSnakeGame());
+
+  act(() => {
+    result.current.startGame();
+  });
+  act(() => {
+    vi.advanceTimersByTime(GAME_SPEED * TICKS_TO_GAME_OVER);
+  });
+
+  expect(result.current.gameState.status).toBe('gameOver');
+
+  const elapsedAtGameOver = result.current.elapsedSeconds;
+
+  act(() => {
+    vi.advanceTimersByTime(5000);
+  });
+
+  expect(result.current.elapsedSeconds).toBe(elapsedAtGameOver);
+});
+
+test('elapsed time resets when starting a new game', () => {
+  vi.useFakeTimers();
+  const { result } = renderHook(() => useSnakeGame());
+
+  act(() => {
+    result.current.startGame();
+  });
+  act(() => {
+    vi.advanceTimersByTime(1000);
+  });
+
+  expect(result.current.elapsedSeconds).toBe(1);
+
+  act(() => {
+    result.current.startGame();
+  });
+
+  expect(result.current.gameState.status).toBe('running');
+  expect(result.current.elapsedSeconds).toBe(0);
+});
+
+test('elapsed time restarts its interval when starting a new game while running', () => {
+  vi.useFakeTimers();
+  const { result } = renderHook(() => useSnakeGame());
+
+  act(() => {
+    result.current.startGame();
+  });
+  act(() => {
+    vi.advanceTimersByTime(900);
+  });
+  act(() => {
+    result.current.startGame();
+  });
+
+  expect(result.current.gameState.status).toBe('running');
+  expect(result.current.elapsedSeconds).toBe(0);
+
+  act(() => {
+    vi.advanceTimersByTime(99);
+  });
+
+  expect(result.current.elapsedSeconds).toBe(0);
+
+  act(() => {
+    vi.advanceTimersByTime(901);
+  });
+
+  expect(result.current.elapsedSeconds).toBe(1);
+});
+
+test('elapsed time resets when restarting with the primary action', () => {
+  vi.useFakeTimers();
+  const { result } = renderHook(() => useSnakeGame());
+
+  act(() => {
+    result.current.startGame();
+  });
+  act(() => {
+    vi.advanceTimersByTime(GAME_SPEED * TICKS_TO_GAME_OVER);
+  });
+
+  expect(result.current.gameState.status).toBe('gameOver');
+  expect(result.current.elapsedSeconds).toBeGreaterThan(0);
+
+  act(() => {
+    result.current.togglePrimaryAction();
+  });
+
+  expect(result.current.gameState.status).toBe('running');
+  expect(result.current.elapsedSeconds).toBe(0);
+});
+
+test('elapsed time resets when restarting with the spacebar', () => {
+  vi.useFakeTimers();
+  const { result } = renderHook(() => useSnakeGame());
+
+  act(() => {
+    result.current.startGame();
+  });
+  act(() => {
+    vi.advanceTimersByTime(GAME_SPEED * TICKS_TO_GAME_OVER);
+  });
+
+  expect(result.current.gameState.status).toBe('gameOver');
+  expect(result.current.elapsedSeconds).toBeGreaterThan(0);
+
+  act(() => {
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
+  });
+
+  expect(result.current.gameState.status).toBe('running');
+  expect(result.current.elapsedSeconds).toBe(0);
 });
 
 test('changeDirection queues a valid direction before the next tick', () => {

@@ -2,8 +2,8 @@
 
 A small browser Snake game built with Vite, React, and TypeScript. The player
 starts the game, guides the snake around a 20 by 20 board, eats food to grow and
-score points, pauses when needed, and restarts after winning or colliding with a
-wall or the snake body.
+score points, tracks elapsed run time, pauses when needed, and restarts after
+winning or colliding with a wall or the snake body.
 
 ## Stack
 
@@ -43,7 +43,7 @@ src/
   index.tsx               React bootstrap
   components/             GameBoard, Controls, and ScoreBoard UI
   game/                   Pure game rules, movement, food placement, constants
-  hooks/useSnakeGame.ts   React state, keyboard controls, and game loop
+  hooks/useSnakeGame.ts   React state, keyboard controls, game loop, and timer
   types.ts                Shared public type re-exports
 e2e/                      Playwright functional and visual tests
 docs/                     Architecture and testing documentation
