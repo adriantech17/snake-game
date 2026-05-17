@@ -15,10 +15,8 @@ function runningState(overrides: Partial<GameState> = {}): GameState {
     food: { x: 0, y: 0 },
     direction: 'UP',
     nextDirection: 'UP',
-    gameOver: false,
-    gameWon: false,
     score: 0,
-    isRunning: true,
+    status: 'running',
     ...overrides,
   };
 }
@@ -46,9 +44,7 @@ describe('game engine', () => {
     expect(state.direction).toBe('UP');
     expect(state.nextDirection).toBe('UP');
     expect(state.score).toBe(0);
-    expect(state.isRunning).toBe(false);
-    expect(state.gameOver).toBe(false);
-    expect(state.gameWon).toBe(false);
+    expect(state.status).toBe('idle');
   });
 
   test.each([
@@ -78,8 +74,7 @@ describe('game engine', () => {
     });
 
     expect(tick(state)).toMatchObject({
-      gameOver: true,
-      isRunning: false,
+      status: 'gameOver',
     });
   });
 
@@ -103,7 +98,7 @@ describe('game engine', () => {
         { x: 1, y: 1 },
         { x: 2, y: 1 },
       ],
-      gameOver: false,
+      status: 'running',
     });
   });
 
@@ -121,8 +116,7 @@ describe('game engine', () => {
     });
 
     expect(tick(state)).toMatchObject({
-      gameOver: true,
-      isRunning: false,
+      status: 'gameOver',
     });
   });
 
@@ -189,8 +183,7 @@ describe('game engine', () => {
     const next = tick(state);
 
     expect(next.food).toBeNull();
-    expect(next.gameWon).toBe(true);
-    expect(next.isRunning).toBe(false);
+    expect(next.status).toBe('won');
     expect(next.score).toBe(BOARD_SIZE * BOARD_SIZE - 1);
   });
 
@@ -213,14 +206,33 @@ describe('game engine', () => {
     expect(next.snake[0]).toEqual({ x: 6, y: 5 });
   });
 
+  test('rejects a direction opposite to the already-queued nextDirection', () => {
+    // direction='RIGHT', nextDirection already queued to 'UP'.
+    // Pressing 'DOWN' (opposite of UP) must be rejected even though
+    // 'DOWN' is not opposite to the current committed direction 'RIGHT'.
+    const state = runningState({
+      snake: [
+        { x: 5, y: 5 },
+        { x: 4, y: 5 },
+      ],
+      direction: 'RIGHT',
+      nextDirection: 'UP',
+    });
+
+    const result = queueDirection(state, 'DOWN');
+
+    expect(result).toBe(state);
+    expect(result.nextDirection).toBe('UP');
+  });
+
   test('handles start, pause, and resume lifecycle actions', () => {
     const started = startGame(() => 0);
     const paused = pauseGame(started);
     const resumed = resumeGame(paused);
 
-    expect(started.isRunning).toBe(true);
-    expect(paused.isRunning).toBe(false);
-    expect(resumed.isRunning).toBe(true);
+    expect(started.status).toBe('running');
+    expect(paused.status).toBe('paused');
+    expect(resumed.status).toBe('running');
   });
 
   const guardedLifecycleCases: Array<
@@ -229,17 +241,23 @@ describe('game engine', () => {
     [
       'pausing an already paused game',
       pauseGame,
-      runningState({ isRunning: false }),
+      runningState({ status: 'paused' }),
     ],
-    ['pausing a game over state', pauseGame, runningState({ gameOver: true })],
-    ['pausing a won state', pauseGame, runningState({ gameWon: true })],
+    ['pausing an idle game', pauseGame, runningState({ status: 'idle' })],
+    [
+      'pausing a game over state',
+      pauseGame,
+      runningState({ status: 'gameOver' }),
+    ],
+    ['pausing a won state', pauseGame, runningState({ status: 'won' })],
     ['resuming an already running game', resumeGame, runningState()],
+    ['resuming an idle game', resumeGame, runningState({ status: 'idle' })],
     [
       'resuming a game over state',
       resumeGame,
-      runningState({ gameOver: true }),
+      runningState({ status: 'gameOver' }),
     ],
-    ['resuming a won state', resumeGame, runningState({ gameWon: true })],
+    ['resuming a won state', resumeGame, runningState({ status: 'won' })],
   ];
 
   test.each(guardedLifecycleCases)(
@@ -249,24 +267,18 @@ describe('game engine', () => {
     },
   );
 
-  test('does not advance an idle game', () => {
-    const state = createInitialGameState(() => 0);
-
+  test.each([
+    ['idle', createInitialGameState(() => 0)],
+    ['paused', runningState({ status: 'paused' })],
+    ['game over', runningState({ status: 'gameOver' })],
+    ['won', runningState({ status: 'won' })],
+  ] as const)('does not advance a %s game', (_name, state) => {
     expect(tick(state)).toBe(state);
-  });
-
-  test('does not advance terminal games', () => {
-    const over = runningState({ gameOver: true });
-    const won = runningState({ gameWon: true });
-
-    expect(tick(over)).toBe(over);
-    expect(tick(won)).toBe(won);
   });
 
   test('ends the game if the snake has no head', () => {
     expect(tick(runningState({ snake: [] }))).toMatchObject({
-      gameOver: true,
-      isRunning: false,
+      status: 'gameOver',
     });
   });
 });
