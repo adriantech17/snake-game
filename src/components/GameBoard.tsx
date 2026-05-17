@@ -41,9 +41,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
       )}
 
       {/* Body segments (rendered before head so head sits on top) */}
-      {snake.slice(1).map((segment) => (
+      {snake.slice(1).map((segment, i) => (
         <div
-          key={`${segment.x}-${segment.y}`}
+          key={`seg-${i}`}
           className="snake-body"
           style={pieceStyle(segment.x, segment.y)}
         />
