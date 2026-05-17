@@ -16,7 +16,7 @@ winning or colliding with a wall or the snake body.
 
 ## Requirements
 
-- Node.js `^20.19.0`, `^22.13.0`, or `>=24.0.0`.
+- Node.js `^22.13.0` or `>=24.0.0`.
 - pnpm `10.33.4`.
 
 ## Quick Start
