@@ -15,7 +15,7 @@ that need a real browser.
   Keep snapshots small and avoid text-heavy captures when a narrower element is
   enough.
 
-## Unit and Integration Tests
+## Unit And Integration Tests
 
 - Keep tests co-located with the code they cover using `*.test.ts`,
   `*.test.tsx`, or `*.test-d.ts`.
@@ -25,9 +25,23 @@ that need a real browser.
 - Do not use real network calls, external services, real randomness, or real
   timers in unit and integration tests.
 - Prefer `getByRole`, then `getByLabelText`, then visible text. Use
-  `data-testid` only when accessible semantics would be misleading or impossible.
+  `data-testid` only when accessible semantics would be misleading or
+  impossible.
 - For board internals, prefer accessible board-level assertions unless the test
   truly needs piece placement.
+
+## Gameplay Scenarios
+
+Cover gameplay changes at the cheapest useful layer:
+
+- Start, pause, resume, restart, game over, and win transitions.
+- Direction queueing, including rejected opposite turns.
+- Wall collisions and self-collisions.
+- Moving into a vacated tail cell when not eating.
+- Food placement that excludes occupied cells.
+- Growth and score changes after eating.
+- Full-board behavior where no food position remains.
+- Keyboard and pointer controls when UI behavior changes.
 
 ## Playwright
 
@@ -39,7 +53,8 @@ that need a real browser.
 - Use the configured `baseURL` and navigate with relative paths such as `/`.
 - Keep functional E2E tests focused on real Snake flows: load, render board and
   controls, start, pause, and resume.
-- Do not add Page Object Model, mock servers, auth, checkout, or unrelated flows.
+- Do not add Page Object Model, mock servers, auth, checkout, or unrelated
+  flows.
 
 ## Visual Regression
 
@@ -63,14 +78,14 @@ Review generated image changes before committing them.
 
 ## Coverage Policy
 
-Coverage is a confidence signal, not the goal. Do not add tests that only execute
-lines without protecting meaningful behavior.
+Coverage is a confidence signal, not the goal. Do not add tests that only
+execute lines without protecting meaningful behavior.
 
 - Product-code global threshold: 95% for statements, branches, functions, and
   lines.
 - `src/game/**` threshold: 95% for statements, branches, functions, and lines.
-- Bootstrap and test setup files are excluded because they do not contain product
-  behavior:
+- Bootstrap and test setup files are excluded because they do not contain
+  product behavior:
   - `src/index.tsx`
   - `src/reportWebVitals.ts`
   - `src/setupTests.ts`
@@ -83,7 +98,19 @@ Before adding or changing tests, assistants should:
 - Choose the cheapest layer that protects the behavior.
 - Prefer deterministic inputs over mocks that hide the game rules.
 - Keep assertions user-facing for UI and state-facing for pure game logic.
+
+Pick the primary test file based on what changed:
+
+| Change type                             | Primary test file                |
+| --------------------------------------- | -------------------------------- |
+| Pure game rules, movement, food, engine | `src/game/*.test.ts`             |
+| Hook state, timers, keyboard wiring     | `src/hooks/useSnakeGame.test.ts` |
+| UI component rendering or accessibility | `src/components/*.test.tsx`      |
+| App-level wiring and integration        | `src/App.test.tsx`               |
+| Real browser flow or visible game state | `e2e/snake-game.spec.ts`         |
+| Visual snapshot baseline                | `e2e/visual-regression.spec.ts`  |
+
 - Avoid adding new testing libraries, helpers, or abstractions unless the
   duplication is already concrete.
-- Run the closest relevant check before finishing, then broaden to the full local
-  verification set when changing shared behavior or CI.
+- Run the closest relevant check before finishing, then broaden to the full
+  local verification set when changing shared behavior or CI.

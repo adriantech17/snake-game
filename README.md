@@ -1,164 +1,89 @@
 # Snake Game
 
-React and TypeScript application built with Vite.
+A small browser Snake game built with Vite, React, and TypeScript. The player
+starts the game, guides the snake around a 20 by 20 board, eats food to grow and
+score points, pauses when needed, and restarts after winning or colliding with a
+wall or the snake body.
+
+## Stack
+
+- Vite for local development and production builds.
+- React function components for the UI.
+- TypeScript for application and game-state types.
+- Vitest, Testing Library, and jsdom for unit and integration tests.
+- Playwright for Chromium E2E and visual regression checks.
+- pnpm for dependency management with exact package versions.
 
 ## Requirements
 
 - Node.js `^20.19.0`, `^22.13.0`, or `>=24.0.0`.
-- pnpm `10.33.4` with `pnpm-lock.yaml` for reproducible installs.
-- Project dependencies are pinned to exact versions for supply-chain safety.
+- pnpm `10.33.4`.
 
-## Getting Started
+## Quick Start
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) to view the app.
+Open [http://localhost:5173](http://localhost:5173) to play locally.
 
-## Available Scripts
+## Gameplay Controls
 
-In the project directory, you can run:
+- Start, pause, resume, or restart with `Space`.
+- Move with arrow keys or `W`, `A`, `S`, and `D`.
+- Use the on-screen direction buttons and primary action button on pointer or
+  touch devices.
 
-### `pnpm run dev`
-
-Runs the app in development mode.\
-Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
-
-The page will reload if you make edits.
-
-### `pnpm start`
-
-Runs the same Vite development server as `pnpm run dev`.
-
-### `pnpm test`
-
-Runs the test suite once with Vitest.
-
-### `pnpm run test:watch`
-
-Launches the Vitest test runner in watch mode.
-
-### `pnpm run test:type`
-
-Runs type-level Vitest checks.
-
-### `pnpm run test:e2e`
-
-Runs the functional Playwright E2E suite in Chromium.
-
-### `pnpm run test:e2e:ui`
-
-Launches the Playwright UI runner for local functional E2E debugging.
-
-### `pnpm run test:visual`
-
-Runs the separate Playwright visual regression test.
-
-### `pnpm run coverage`
-
-Runs the test suite with V8 coverage reporting.
-
-### `pnpm run lint`
-
-Checks the project with ESLint.
-
-### `pnpm run lint:fix`
-
-Applies safe ESLint fixes.
-
-### `pnpm run branch:check`
-
-Validates the current branch name against the repository convention.
-
-### `pnpm run commitlint:message`
-
-Validates a Conventional Commit-style message from standard input.
-
-### `pnpm run format:check`
-
-Checks formatting with Prettier.
-
-### `pnpm run format`
-
-Formats files with Prettier.
-
-### `pnpm run build`
-
-Builds the app for production to the `dist` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-## Continuous Integration
-
-Pull requests to `main` and pushes to `main` run the GitHub Actions workflow in
-`.github/workflows/ci.yml`. CI checks formatting, ESLint, type tests, coverage,
-production build, Playwright E2E tests, dependency review, pnpm audit, CodeQL
-analysis, and secret scanning. Pull requests also run repository policy checks
-for PR title, commit message, and branch naming conventions. Issues are
-standardized with issue forms, default labels, and required fields.
-
-## Testing Strategy
-
-See [TESTING.md](./TESTING.md) for the project testing pyramid, coverage policy,
-Playwright conventions, visual snapshot workflow, and LLM testing checklist.
-
-## Contribution Conventions
-
-Use Conventional Commits for commit messages and pull request titles:
+## Project Structure
 
 ```text
-<type>(<scope>): <description>
+src/
+  App.tsx                 App composition
+  index.tsx               React bootstrap
+  components/             GameBoard, Controls, and ScoreBoard UI
+  game/                   Pure game rules, movement, food placement, constants
+  hooks/useSnakeGame.ts   React state, keyboard controls, and game loop
+  types.ts                Shared public type re-exports
+e2e/                      Playwright functional and visual tests
+docs/                     Architecture and testing documentation
+.github/                  CI, policy workflows, issue forms, and PR template
+public/                   Static assets copied by Vite
 ```
 
-The scope is optional when the type already gives enough context. Prefer these
-types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`,
-`chore`, and `revert`. Useful scopes for this project include `game`, `ui`,
-`hooks`, `deps`, `actions`, `docs`, `config`, and `tests`, but CI does not reject
-other clear scopes.
+Generated directories such as `build/`, `coverage/`, `dist/`, and
+`node_modules/` are not source files.
 
-CI validates the pull request title and the first line of each pull request commit
-with Commitlint. The repository may use merge commits, squash merge, or rebase
-merge. For squash merges, the pull request title becomes the important final
-commit message. For rebase merges, every commit subject should already be
-conventional. GitHub-generated merge commit subjects are allowed as automation
-exceptions.
+## Common Commands
 
-Commit messages are also checked locally through Husky and Commitlint. Branch names
-are checked locally before push and in CI with the same validation script.
-Git does not provide a local hook for creating GitHub pull requests, so validate
-the intended PR title manually when useful:
+| Command                        | Purpose                                              |
+| ------------------------------ | ---------------------------------------------------- |
+| `pnpm run dev` or `pnpm start` | Run Vite at `http://localhost:5173`.                 |
+| `pnpm run build`               | Type-check with `tsc --noEmit` and build to `dist/`. |
+| `pnpm test`                    | Run the Vitest suite once.                           |
+| `pnpm run test:watch`          | Run Vitest in watch mode.                            |
+| `pnpm run test:type`           | Run type-check-only Vitest tests.                    |
+| `pnpm run coverage`            | Run Vitest with V8 coverage thresholds.              |
+| `pnpm run test:e2e`            | Run functional Playwright tests in Chromium.         |
+| `pnpm run test:e2e:ui`         | Open the Playwright UI runner for E2E debugging.     |
+| `pnpm run test:visual`         | Run the explicit visual regression test.             |
+| `pnpm run lint`                | Check ESLint rules.                                  |
+| `pnpm run lint:fix`            | Apply safe ESLint fixes.                             |
+| `pnpm run format:check`        | Check Prettier formatting.                           |
+| `pnpm run format`              | Rewrite files with Prettier.                         |
+| `pnpm run branch:check`        | Validate the current branch name.                    |
+| `pnpm run commitlint:message`  | Validate a Conventional Commit message from stdin.   |
+
+## Testing And Quality
+
+The fastest useful checks for documentation-only changes are:
 
 ```sh
-printf '%s\n' 'fix(game): prevent wall collision regression' | pnpm run commitlint:message
+pnpm run format:check
 ```
 
-Issues must be opened through the configured GitHub issue forms. Blank issues are
-disabled, and the bug/feature forms apply labels and require the context needed to
-triage the request.
-
-Name human-authored branches with a type prefix and kebab-case summary. Include
-the issue number when the work is tied to an issue:
-
-```text
-<type>/<optional-issue-number>-<short-kebab-summary>
-```
-
-Examples:
-
-```text
-feat/pause-button
-fix/mobile-controls
-ci/30-repository-conventions
-```
-
-Agent-created branches may use `codex/<type>-<optional-issue-number>-<summary>`.
-Dependabot and other automation branches are allowed as exceptions.
-
-Before opening a pull request, run the main local checks:
+For code or CI changes, run the closest relevant checks and broaden before
+opening a pull request:
 
 ```sh
 pnpm run format:check
@@ -173,11 +98,34 @@ pnpm run test:e2e
 pnpm run test:visual
 ```
 
-Dependency updates are managed by Dependabot in `.github/dependabot.yml` for both
-pnpm-managed npm packages and GitHub Actions. GitHub Actions are pinned to full
-commit SHAs for supply-chain safety, npm package dependencies are pinned to exact
-versions, and Dependabot keeps those pinned references current.
+See [docs/testing.md](./docs/testing.md) for the testing strategy, deterministic
+gameplay testing guidance, fake timer usage, coverage policy, and Playwright
+conventions.
 
-The repository policy workflow uses the `pull_request` event for PR checks. Avoid
-`pull_request_target` for workflows that install dependencies or run repository
-scripts.
+## CI And Security
+
+Pull requests to `main` and pushes to `main` run GitHub Actions checks for
+formatting, linting, type tests, coverage, production builds, functional
+Playwright tests, dependency review, pnpm audit, CodeQL analysis, secret
+scanning, PR titles, commit subjects, and branch naming.
+
+Dependencies are pinned to exact versions. GitHub Actions are pinned to full
+commit SHAs and kept current by Dependabot along with pnpm-managed npm packages.
+
+Report suspected vulnerabilities privately through the repository security
+advisory flow. See [SECURITY.md](./SECURITY.md) for scope, reporting guidance,
+and maintenance expectations.
+
+## Contributing
+
+Start with [CONTRIBUTING.md](./CONTRIBUTING.md) for setup, branch names, commit
+messages, pull request expectations, and required checks. Open bugs and feature
+requests through the configured GitHub issue forms, and use
+[GitHub Issues](https://github.com/adriantech17/snake-game/issues) to find
+focused work.
+
+Architecture notes live in [docs/architecture.md](./docs/architecture.md). AI
+agents should also follow [AGENTS.md](./AGENTS.md).
+
+This project is maintained by Adrián through the repository issue and pull
+request workflow.
