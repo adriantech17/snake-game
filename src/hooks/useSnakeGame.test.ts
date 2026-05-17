@@ -137,7 +137,7 @@ test('elapsed time pauses and resumes without losing accumulated time', () => {
     result.current.startGame();
   });
   act(() => {
-    vi.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(900);
   });
   act(() => {
     result.current.pauseGame();
@@ -146,7 +146,7 @@ test('elapsed time pauses and resumes without losing accumulated time', () => {
     vi.advanceTimersByTime(5000);
   });
 
-  expect(result.current.elapsedSeconds).toBe(1);
+  expect(result.current.elapsedSeconds).toBe(0);
 
   act(() => {
     result.current.changeDirection('RIGHT');
@@ -155,10 +155,16 @@ test('elapsed time pauses and resumes without losing accumulated time', () => {
     result.current.resumeGame();
   });
   act(() => {
-    vi.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(99);
   });
 
-  expect(result.current.elapsedSeconds).toBe(2);
+  expect(result.current.elapsedSeconds).toBe(0);
+
+  act(() => {
+    vi.advanceTimersByTime(1);
+  });
+
+  expect(result.current.elapsedSeconds).toBe(1);
 });
 
 test('does not advance after game over', () => {
@@ -224,6 +230,36 @@ test('elapsed time resets when starting a new game', () => {
 
   expect(result.current.gameState.status).toBe('running');
   expect(result.current.elapsedSeconds).toBe(0);
+});
+
+test('elapsed time restarts its interval when starting a new game while running', () => {
+  vi.useFakeTimers();
+  const { result } = renderHook(() => useSnakeGame());
+
+  act(() => {
+    result.current.startGame();
+  });
+  act(() => {
+    vi.advanceTimersByTime(900);
+  });
+  act(() => {
+    result.current.startGame();
+  });
+
+  expect(result.current.gameState.status).toBe('running');
+  expect(result.current.elapsedSeconds).toBe(0);
+
+  act(() => {
+    vi.advanceTimersByTime(99);
+  });
+
+  expect(result.current.elapsedSeconds).toBe(0);
+
+  act(() => {
+    vi.advanceTimersByTime(901);
+  });
+
+  expect(result.current.elapsedSeconds).toBe(1);
 });
 
 test('elapsed time resets when restarting with the primary action', () => {
