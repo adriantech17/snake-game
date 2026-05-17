@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { GAME_SPEED } from '../game/constants';
 import {
   createInitialGameState,
@@ -52,12 +52,12 @@ export function useSnakeGame() {
   const accumulatedElapsedMsRef = useRef(0);
   const runStartedAtMsRef = useRef<number | null>(null);
 
-  function resetTimer() {
+  const resetTimer = useCallback(() => {
     accumulatedElapsedMsRef.current = 0;
     runStartedAtMsRef.current = null;
     setElapsedSeconds(0);
     setTimerEpoch((prev) => prev + 1);
-  }
+  }, []);
 
   function startGame() {
     resetTimer();
@@ -182,7 +182,7 @@ export function useSnakeGame() {
     window.addEventListener('keydown', handleKeyDown);
 
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [gameState.status]);
+  }, [gameState.status, resetTimer]);
 
   return {
     gameState,

@@ -284,6 +284,28 @@ test('elapsed time resets when restarting with the primary action', () => {
   expect(result.current.elapsedSeconds).toBe(0);
 });
 
+test('elapsed time resets when restarting with the spacebar', () => {
+  vi.useFakeTimers();
+  const { result } = renderHook(() => useSnakeGame());
+
+  act(() => {
+    result.current.startGame();
+  });
+  act(() => {
+    vi.advanceTimersByTime(GAME_SPEED * TICKS_TO_GAME_OVER);
+  });
+
+  expect(result.current.gameState.status).toBe('gameOver');
+  expect(result.current.elapsedSeconds).toBeGreaterThan(0);
+
+  act(() => {
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
+  });
+
+  expect(result.current.gameState.status).toBe('running');
+  expect(result.current.elapsedSeconds).toBe(0);
+});
+
 test('changeDirection queues a valid direction before the next tick', () => {
   vi.useFakeTimers();
   const { result } = renderHook(() => useSnakeGame());
