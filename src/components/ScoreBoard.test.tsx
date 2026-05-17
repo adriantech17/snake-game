@@ -2,9 +2,7 @@ import { render, screen } from '@testing-library/react';
 import ScoreBoard from './ScoreBoard';
 
 test('renders the current score and paused state', () => {
-  render(
-    <ScoreBoard score={7} isRunning={false} gameOver={false} gameWon={false} />,
-  );
+  render(<ScoreBoard score={7} status="paused" />);
 
   expect(
     screen.getByRole('heading', { name: /snake game/i }),
@@ -14,19 +12,12 @@ test('renders the current score and paused state', () => {
 });
 
 test.each([
-  [
-    'playing',
-    { isRunning: true, gameOver: false, gameWon: false },
-    'Playing...',
-  ],
-  [
-    'game over',
-    { isRunning: false, gameOver: true, gameWon: false },
-    'Game Over!',
-  ],
-  ['win', { isRunning: false, gameOver: false, gameWon: true }, 'You Win!'],
-] as const)('renders the %s status', (_name, state, expectedStatus) => {
-  render(<ScoreBoard score={0} {...state} />);
+  ['idle', 'Ready'],
+  ['running', 'Playing...'],
+  ['gameOver', 'Game Over!'],
+  ['won', 'You Win!'],
+] as const)('renders the %s status', (status, expectedStatus) => {
+  render(<ScoreBoard score={0} status={status} />);
 
   expect(screen.getByText(expectedStatus)).toBeInTheDocument();
 });

@@ -1,27 +1,34 @@
 import React from 'react';
-import type { Direction } from '../types';
+import type { Direction, GameStatus } from '../types';
 
 interface ControlsProps {
   onDirectionChange: (direction: Direction) => void;
-  onStart: () => void;
-  onPauseResume: () => void;
-  isRunning: boolean;
-  gameOver: boolean;
+  onPrimaryAction: () => void;
+  status: GameStatus;
 }
+
+const primaryActionLabel: Record<GameStatus, string> = {
+  idle: 'Start',
+  running: 'Pause',
+  paused: 'Resume',
+  gameOver: 'Restart',
+  won: 'Restart',
+};
 
 const Controls: React.FC<ControlsProps> = ({
   onDirectionChange,
-  onStart,
-  onPauseResume,
-  isRunning,
-  gameOver,
+  onPrimaryAction,
+  status,
 }) => {
+  const isDirectionActive = status === 'running' || status === 'paused';
+
   return (
     <div className="controls">
       <button
         onClick={() => onDirectionChange('UP')}
         className="control-btn"
         aria-label="Move up"
+        disabled={!isDirectionActive}
       >
         ▲
       </button>
@@ -30,6 +37,7 @@ const Controls: React.FC<ControlsProps> = ({
           onClick={() => onDirectionChange('LEFT')}
           className="control-btn"
           aria-label="Move left"
+          disabled={!isDirectionActive}
         >
           ◀
         </button>
@@ -37,6 +45,7 @@ const Controls: React.FC<ControlsProps> = ({
           onClick={() => onDirectionChange('RIGHT')}
           className="control-btn"
           aria-label="Move right"
+          disabled={!isDirectionActive}
         >
           ▶
         </button>
@@ -45,22 +54,14 @@ const Controls: React.FC<ControlsProps> = ({
         onClick={() => onDirectionChange('DOWN')}
         className="control-btn"
         aria-label="Move down"
+        disabled={!isDirectionActive}
       >
         ▼
       </button>
       <div className="control-actions">
-        {gameOver || !isRunning ? (
-          <button
-            onClick={gameOver ? onStart : onPauseResume}
-            className="action-btn"
-          >
-            {gameOver ? 'Restart' : 'Start'}
-          </button>
-        ) : (
-          <button onClick={onPauseResume} className="action-btn">
-            Pause
-          </button>
-        )}
+        <button onClick={onPrimaryAction} className="action-btn">
+          {primaryActionLabel[status]}
+        </button>
       </div>
     </div>
   );

@@ -14,9 +14,7 @@ test('initializes with an idle, non-terminal state', () => {
   const { result } = renderHook(() => useSnakeGame());
   const { gameState } = result.current;
 
-  expect(gameState.isRunning).toBe(false);
-  expect(gameState.gameOver).toBe(false);
-  expect(gameState.gameWon).toBe(false);
+  expect(gameState.status).toBe('idle');
   expect(gameState.score).toBe(0);
   expect(gameState.snake).toEqual(INITIAL_SNAKE);
 });
@@ -29,8 +27,7 @@ test('startGame transitions to a running state', () => {
     result.current.startGame();
   });
 
-  expect(result.current.gameState.isRunning).toBe(true);
-  expect(result.current.gameState.gameOver).toBe(false);
+  expect(result.current.gameState.status).toBe('running');
 });
 
 test('pauseGame stops a running game without ending it', () => {
@@ -44,8 +41,7 @@ test('pauseGame stops a running game without ending it', () => {
     result.current.pauseGame();
   });
 
-  expect(result.current.gameState.isRunning).toBe(false);
-  expect(result.current.gameState.gameOver).toBe(false);
+  expect(result.current.gameState.status).toBe('paused');
 });
 
 test('resumeGame restarts a paused game without resetting state', () => {
@@ -70,8 +66,7 @@ test('resumeGame restarts a paused game without resetting state', () => {
     result.current.resumeGame();
   });
 
-  expect(result.current.gameState.isRunning).toBe(true);
-  expect(result.current.gameState.gameOver).toBe(false);
+  expect(result.current.gameState.status).toBe('running');
   // State must be preserved, not reset to initial values.
   expect(result.current.gameState.snake).toEqual(snakeBeforePause);
   expect(result.current.gameState.score).toBe(scoreBeforePause);
@@ -124,7 +119,7 @@ test('does not advance after game over', () => {
     vi.advanceTimersByTime(GAME_SPEED * TICKS_TO_GAME_OVER);
   });
 
-  expect(result.current.gameState.gameOver).toBe(true);
+  expect(result.current.gameState.status).toBe('gameOver');
 
   const snakeAtGameOver = result.current.gameState.snake;
 
@@ -165,4 +160,44 @@ test('changeDirection ignores the opposite of the current direction', () => {
   });
 
   expect(result.current.gameState.nextDirection).toBe('UP');
+});
+
+const inactiveDirectionCases = [
+  ['idle', () => undefined],
+  [
+    'gameOver',
+    (result: { current: ReturnType<typeof useSnakeGame> }) => {
+      act(() => result.current.startGame());
+      act(() => vi.advanceTimersByTime(GAME_SPEED * TICKS_TO_GAME_OVER));
+    },
+  ],
+] as const;
+
+test.each(inactiveDirectionCases)(
+  'changeDirection is ignored in %s state',
+  (_targetStatus, prepareState) => {
+    vi.useFakeTimers();
+    const { result } = renderHook(() => useSnakeGame());
+
+    prepareState(result);
+
+    const stateBefore = result.current.gameState;
+
+    act(() => {
+      result.current.changeDirection('RIGHT');
+    });
+
+    expect(result.current.gameState).toBe(stateBefore);
+  },
+);
+
+test('changeDirection is accepted while paused', () => {
+  vi.useFakeTimers();
+  const { result } = renderHook(() => useSnakeGame());
+
+  act(() => result.current.startGame());
+  act(() => result.current.pauseGame());
+  act(() => result.current.changeDirection('RIGHT'));
+
+  expect(result.current.gameState.nextDirection).toBe('RIGHT');
 });
